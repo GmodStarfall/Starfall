@@ -20,8 +20,36 @@ datastream.Hook("sf_screen_download",function(handler, id, encoded, decoded)
 	end
 end)
 
+usermessage.Hook("starfall_shared_screen_input", function( data )
+	ENT:InputChange( data )
+end)
+
+function ENT:InputChange( data )
+	local screen = entity( data:ReadShort() )
+	local inputname = data:ReadString()
+	local value
+	
+	local input = self.Inputs.inputname
+	
+	if input.Type == "NORMAL" then
+		value = data:ReadFloat()
+	elseif input.Type == "ENTITY" then
+		value = data:ReadShort()
+	elseif input.Type == "STRING" then
+		value = data:ReadString()
+	elseif input.Type == "ANGLE" then
+		value = Angle( data:ReadFloat(), data:ReadFloat(), data:ReadFloat() )
+	elseif input.Type == "VECTOR" then
+		value = Vector( data:ReadFloat(), data:ReadFloat(),  data:ReadFloat() )
+	end
+	
+	input.Value = value
+	--self:runHook( "input", inputname, value )
+end
+
 function ENT:Initialize()
 	self.gpu = GPULib.WireGPU(self)
+	self.Inputs = { }
 end
 
 function ENT:Think()

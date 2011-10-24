@@ -104,6 +104,32 @@ function ENT:TriggerInput(key, value)
 	if self.instance and not self.instance.error then
 		self.instance:runScriptHook("input",key,value)
 	end
+	if self.instance.ppdata.sharedscreen then
+		umsg.Start("starfall_shared_screen_input");
+			umsg.Short( self:EntIndex() )
+			umsg.String( key )
+			if type( value ) == "number" then
+				umsg.Float( value )
+			elseif type( value ) == "string" then
+				umsg.String( value )
+			elseif type( value ) == "table" then
+				local list = { }
+				if value.x then
+					list[1] = value.x
+					list[2] = value.y
+					list[3] = value.z
+				elseif value.pitch then
+					list[1] = value.pitch
+					list[2] = value.yaw
+					list[3] = value.roll
+				end
+				
+				umsg.Float( list[1] )
+				umsg.Float( list[2] )
+				umsg.Float( list[3] )
+			end
+		umsg.End();
+	end
 end
 
 function ENT:ReadCell(address)
