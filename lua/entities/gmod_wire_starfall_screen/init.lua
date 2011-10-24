@@ -78,7 +78,10 @@ function ENT:CodeSent(ply, task)
 	
 	SF.Preprocessor.ParseDirectives(task.mainfile, task.files[task.mainfile], {}, ppdata)
 	
-	if ppdata.sharedscreen then self:Compile(task.files, task.mainfile) end
+	if ppdata.sharedscreen then 
+		self:Compile(task.files, task.mainfile)
+		self.sharedscreen = true
+	end
 end
 
 function ENT:Think()
@@ -104,7 +107,7 @@ function ENT:TriggerInput(key, value)
 	if self.instance and not self.instance.error then
 		self.instance:runScriptHook("input",key,value)
 	end
-	if self.instance.ppdata.sharedscreen then
+	if self.sharedscreen then
 		umsg.Start("starfall_shared_screen_input");
 			umsg.Short( self:EntIndex() )
 			umsg.String( key )

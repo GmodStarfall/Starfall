@@ -178,6 +178,8 @@ function wire_library.createInputs(names, types)
 	end
 	
 	WireLib.AdjustSpecialInputs(ent,names,types)
+	
+	print( ent.Inputs.Test.Type )
 end
 
 --- Creates/Modifies wire outputs. All wire ports must begin with an uppercase

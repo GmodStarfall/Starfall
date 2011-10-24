@@ -21,25 +21,26 @@ datastream.Hook("sf_screen_download",function(handler, id, encoded, decoded)
 end)
 
 usermessage.Hook("starfall_shared_screen_input", function( data )
-	ENT:InputChange( data )
+	local screen = Entity( data:ReadShort() )
+	screen:InputChange( data )
 end)
 
 function ENT:InputChange( data )
-	local screen = entity( data:ReadShort() )
 	local inputname = data:ReadString()
+	print( inputname )
 	local value
 	
-	local input = self.Inputs.inputname
+	local inval = self.Inputs[inputname]
 	
-	if input.Type == "NORMAL" then
+	if inval.Type == "NORMAL" then
 		value = data:ReadFloat()
-	elseif input.Type == "ENTITY" then
+	elseif inval.Type == "ENTITY" then
 		value = data:ReadShort()
-	elseif input.Type == "STRING" then
+	elseif inval.Type == "STRING" then
 		value = data:ReadString()
-	elseif input.Type == "ANGLE" then
+	elseif inval.Type == "ANGLE" then
 		value = Angle( data:ReadFloat(), data:ReadFloat(), data:ReadFloat() )
-	elseif input.Type == "VECTOR" then
+	elseif inval.Type == "VECTOR" then
 		value = Vector( data:ReadFloat(), data:ReadFloat(),  data:ReadFloat() )
 	end
 	
