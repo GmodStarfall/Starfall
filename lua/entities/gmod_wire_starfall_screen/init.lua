@@ -38,6 +38,30 @@ end
 function ENT:OnRestore()
 end
 
+function ENT:Compile(codetbl, mainfile)
+	local ok, instance = SF.Compiler.Compile(codetbl,context,mainfile,self.owner)
+	if not ok then self:Error(instance) return end
+	self.instance = instance
+	instance.data.entity = self
+	
+	local ok, msg = instance:initialize()
+	if not ok then
+		self:Error(msg)
+		return
+	end
+	self:SetOverlayText("Starfall Processor\nActive")
+end
+
+function ENT:Error(msg, override)
+	ErrorNoHalt("Screen of "..self.owner:Nick().." errored: "..msg.."\n")
+	WireLib.ClientError(msg, self.owner)
+	if self.instance then
+		self.instance:deinitialize()
+		self.instance = nil
+	end
+	self:SetOverlayText("Starfall Processor\nInactive (Error)")
+end
+
 function ENT:CodeSent(ply, task)
 	if ply ~= self.owner then return end
 	self.task = task
@@ -49,6 +73,12 @@ function ENT:CodeSent(ply, task)
 			main = task.mainfile,
 		}})
 	screens[self] = self
+	
+	local ppdata = {}
+	
+	SF.Preprocessor.ParseDirectives(task.mainfile, task.files[task.mainfile], {}, ppdata)
+	
+	if ppdata.sharedscreen then self:Compile(task.files, task.mainfile) end
 end
 
 function ENT:Think()
@@ -73,6 +103,22 @@ end
 function ENT:TriggerInput(key, value)
 	if self.instance and not self.instance.error then
 		self.instance:runScriptHook("input",key,value)
+	end
+end
+
+function ENT:ReadCell(address)
+	return tonumber(self:RunScriptHook("readcell",address)) or 0
+end
+
+function ENT:WriteCell(address, data)
+	self:RunScriptHook("writecell",address,data)
+end
+
+function ENT:RunScriptHook(hook, ...)
+	if self.instance and not self.instance.error and self.instance.hooks[hook:lower()] then
+		local ok, rt = self.instance:runScriptHook(hook, ...)
+		if not ok then self:Error(rt)
+		else return rt end
 	end
 end
 

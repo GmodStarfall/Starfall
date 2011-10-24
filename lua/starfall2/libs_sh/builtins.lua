@@ -77,6 +77,10 @@ SF.DefaultEnvironment.next = next
 -- @param msg
 SF.DefaultEnvironment.assert = function(ok, msg) if not ok then error(msg or "assertion failed!",2) end end
 
+SF.DefaultEnvironment.SERVER = SERVER
+
+SF.DefaultEnvironment.CLIENT = CLIENT
+
 --- Same as Lua's setmetatable. Doesn't work on most internal metatables
 SF.DefaultEnvironment.setmetatable = function(tbl, meta)
 	SF.CheckType(tbl,"table")
