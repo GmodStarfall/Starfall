@@ -26,8 +26,10 @@ usermessage.Hook("starfall_shared_screen_input", function( data )
 end)
 
 function ENT:InputChange( data )
+	local sourceent = Entity( data:ReadShort() )
 	local inputname = data:ReadString()
 	local value
+	
 	
 	local inval = self.Inputs[inputname]
 	
@@ -43,6 +45,7 @@ function ENT:InputChange( data )
 		value = Vector( data:ReadFloat(), data:ReadFloat(),  data:ReadFloat() )
 	end
 	
+	inval.Src = sourceent
 	inval.Value = value
 	self:RunScriptHook( "input", inputname, value )
 end
@@ -87,7 +90,7 @@ function ENT:CodeSent(files, main, owner)
 	
 	function self.renderfunc()
 		self.instance.data.screen.isRendering = true
-		self:runHook("render")
+		self:RunScriptHook("render")
 		if self.instance then self.instance.data.screen.isRendering = nil end
 	end
 end

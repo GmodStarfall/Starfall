@@ -305,15 +305,20 @@ local wire_ports_metatable = {}
 
 function wire_ports_metatable:__index(name)
 	SF.CheckType(name,"string")
+	print( "Dereferencing inputs" )
+	print( "input name: " .. name )
+	
 	local instance = SF.instance
 	local ent = instance.data.entity
 	if not ent then error("No entity",2) end
 
 	local input = ent.Inputs[name]
+	
 	if not (input and input.Src and input.Src:IsValid()) then
 		return nil
 	end
-	return inputConverters[ent.Inputs[name].Type](ent.Inputs[name].Value)
+	
+	return inputConverters[input.Type](input.Value)
 end
 
 function wire_ports_metatable:__newindex(name,value)

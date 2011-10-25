@@ -104,12 +104,20 @@ function ENT:OnRemove()
 end
 
 function ENT:TriggerInput(key, value)
-	if self.instance and not self.instance.error then
-		self.instance:runScriptHook("input",key,value)
-	end
+	print( "Trigger input block entered." )
 	if self.sharedscreen then
+		if self.instance and not self.instance.error then
+			self.instance:runScriptHook("input",key,value)
+		end
+		
+		print( "Umsg started" )
+		
 		umsg.Start("starfall_shared_screen_input");
 			umsg.Short( self:EntIndex() )
+			local wiredent = self.Inputs[key].Src
+			local eid
+			if wiredent then eid = wiredent:EntIndex() else eid = -1 end
+			umsg.Short( eid )
 			umsg.String( key )
 			if type( value ) == "number" then
 				umsg.Float( value )

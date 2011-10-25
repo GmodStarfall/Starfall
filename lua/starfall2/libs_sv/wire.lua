@@ -100,10 +100,8 @@ function wire_library.createInputs(names, types)
 	WireLib.AdjustSpecialInputs(ent,names,types)
 	
 	if ent.sharedscreen then
-		print( "sharedscreen is true" )
-		for k, v in ipairs( ent.Inputs ) do
-			local value = ent.Inputs[k].Value
-			ent:TriggerValue( k, value )
+		for k, v in pairs( ent.Inputs ) do
+			ent:TriggerInput( k, v.Value )
 		end
 	end
 end
