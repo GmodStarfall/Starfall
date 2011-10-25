@@ -25,6 +25,15 @@ usermessage.Hook("starfall_shared_screen_input", function( data )
 	screen:InputChange( data )
 end)
 
+usermessage.Hook( "starfall_screen_used", function ( data )
+	local screen = Entity( data:ReadShort() )
+	local activator = Entity( data:ReadShort() )
+	local x = data:ReadFloat()
+	local y = data:ReadFloat()
+	
+	screen:RunScriptHook( "screen_use", SF.Entities.Wrap( activator ), x, y )
+end)
+
 function ENT:InputChange( data )
 	local sourceent = Entity( data:ReadShort() )
 	local inputname = data:ReadString()
