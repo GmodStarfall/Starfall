@@ -27,7 +27,6 @@ end)
 
 function ENT:InputChange( data )
 	local inputname = data:ReadString()
-	print( inputname )
 	local value
 	
 	local inval = self.Inputs[inputname]
@@ -44,8 +43,8 @@ function ENT:InputChange( data )
 		value = Vector( data:ReadFloat(), data:ReadFloat(),  data:ReadFloat() )
 	end
 	
-	input.Value = value
-	--self:runHook( "input", inputname, value )
+	inval.Value = value
+	self:RunScriptHook( "input", inputname, value )
 end
 
 function ENT:Initialize()
@@ -93,7 +92,7 @@ function ENT:CodeSent(files, main, owner)
 	end
 end
 
-function ENT:runHook(hook, ...)
+function ENT:RunScriptHook(hook, ...)
 	if self.instance and not self.instance.error and self.instance.hooks[hook:lower()] then
 		local ok, rt = self.instance:runScriptHook(hook, ...)
 		if not ok then self:Error(rt)

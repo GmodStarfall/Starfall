@@ -178,8 +178,6 @@ function wire_library.createInputs(names, types)
 	end
 	
 	WireLib.AdjustSpecialInputs(ent,names,types)
-	
-	print( ent.Inputs.Test.Type )
 end
 
 --- Creates/Modifies wire outputs. All wire ports must begin with an uppercase
@@ -315,7 +313,7 @@ function wire_ports_metatable:__index(name)
 	if not (input and input.Src and input.Src:IsValid()) then
 		return nil
 	end
-	return inputConverters[context.data.inputs[name]](context.ent.Inputs[name].Value)
+	return inputConverters[ent.Inputs[name].Type](ent.Inputs[name].Value)
 end
 
 function wire_ports_metatable:__newindex(name,value)
