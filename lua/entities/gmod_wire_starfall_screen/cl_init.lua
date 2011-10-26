@@ -31,7 +31,7 @@ usermessage.Hook( "starfall_screen_used", function ( data )
 	local x = data:ReadFloat()
 	local y = data:ReadFloat()
 	
-	screen:RunScriptHook( "screen_use", SF.Entities.Wrap( activator ), x, y )
+	screen:runScriptHook( "screen_use", SF.Entities.Wrap( activator ), x, y )
 end)
 
 function ENT:InputChange( data )
@@ -56,7 +56,7 @@ function ENT:InputChange( data )
 	
 	inval.Src = sourceent
 	inval.Value = value
-	self:RunScriptHook( "input", inputname, value )
+	self:runScriptHook( "input", inputname, value )
 end
 
 function ENT:Initialize()
