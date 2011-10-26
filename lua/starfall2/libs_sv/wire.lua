@@ -7,7 +7,7 @@ SF.Wire = {}
 SF.Wire.Library = wire_library
 
 local wirelink_metatable = {}
-local wlwrap, wlunwrap = SF.CreateWrapper(wirelink_metatable)
+local wlwrap, wlunwrap = SF.CreateWrapper(wirelink_metatable,true,true)
 
 ---
 -- @class table
