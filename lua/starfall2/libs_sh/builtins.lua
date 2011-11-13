@@ -102,7 +102,7 @@ SF.DefaultEnvironment.SERVER = SERVER
 
 --- Gets the amount of ops used so far
 function SF.DefaultEnvironment.opsUsed()
-	return SF.instance.ops
+	return RealTime() - SF.instance.starttime
 end
 
 --- Gets the ops hard quota

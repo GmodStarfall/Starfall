@@ -36,24 +36,24 @@ end
 -- @return True if ok
 -- @return Any values func returned
 function SF.Instance:runWithOps(func,...)
-	local maxops = self.context.ops
+	local start = SysTime()
+	self.starttime = start
+	local maxtime = start + self.context.ops
 	
 	local function ophook(event)
-		--if event ~= "line" then return end
-		self.ops = self.ops + 1
-		if self.ops > maxops then
-			maxops = 0/0 -- Prevent the hook from being triggered again outside of the pcall
-			error("Ops quota exceeded.",0)
+		if RealTime() > maxtime then
+			maxtime = 0/0 -- Set to NaN so all comparisions will fail
+			              -- and hook won't be triggered again
+			error("Execution Quota Exceeded.",0)
 		end
 	end
 	
 	--local begin = SysTime()
 	--local beginops = self.ops
 	
-	debug.sethook(ophook,"",1)
+	debug.sethook(ophook,"",50)
 	local rt = {pcall(func, ...)}
-	--debug.sethook(infloop_detection_replacement,"",500000000) -- TODO: Fix this so that it doesn't break stuff. Is/was it the "l"?
-	debug.sethook(nil)
+	debug.sethook(infloop_detection_replacement,"",500000000)
 	
 	--MsgN("SF: Exectued "..(self.ops-beginops).." instructions in "..(SysTime()-begin).." seconds")
 	
