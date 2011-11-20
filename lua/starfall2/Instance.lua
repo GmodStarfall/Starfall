@@ -29,8 +29,7 @@ end
 
 --- Internal function - do not call.
 -- Runs a function while incrementing the instance ops coutner.
--- It counts in increments of 10. This does no setup work and shouldn't
--- be called by client code
+-- This does no setup work and shouldn't be called by client code
 -- @param func The function to run
 -- @param ... Arguments to func
 -- @return True if ok
