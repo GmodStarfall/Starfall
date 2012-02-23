@@ -1,8 +1,6 @@
 Starfall Scripting Environment
 ==============================
 
-Some improvements on Starfall
-
 Starfall author: Colonel Thirty Two
 More info: http://colonelthirtytwo.net/index.php/starfall/
 Reference Page: http://colonelthirtytwo.net/sfdoc/
