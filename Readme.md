@@ -1,6 +1,9 @@
 Starfall Scripting Environment
 ==============================
 
+Some improvements on Starfall
+
+Starfall author: Colonel Thirty Two
 More info: http://colonelthirtytwo.net/index.php/starfall/
 Reference Page: http://colonelthirtytwo.net/sfdoc/
 Development Thread: http://www.wiremod.com/forum/developers-showcase/22739-starfall-processor.html
