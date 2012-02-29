@@ -117,11 +117,24 @@ function ENT:RunScriptHookForResult(hook,...)
 end
 
 function ENT:BuildDupeInfo()
-	-- TODO Fix duplication doesnt work
-	--local info = self.BaseClass.BuildDupeInfo(self) or {}
-	return {}
+	local info = self.BaseClass.BuildDupeInfo( self ) or {}
+	
+	-- Fuck you adv dupe
+	local instance = self.instance
+	self.instance = nil
+	timer.Simple( 0, function(ent,inst) if ent and ent:IsValid() then ent.instance = inst end end, self, instance )
+	
+	info.sf_source = instance.source
+	info.sf_mainfile = instance.mainfile
+	return info
 end
 
 function ENT:ApplyDupeInfo(ply, ent, info, GetEntByID, GetConstByID)
+	self.owner = ply
+	
+	if info.sf_source and info.sf_mainfile then
+		self:Compile( info.sf_source, info.sf_mainfile )
+	end
+	
 	self.BaseClass.ApplyDupeInfo(self, ply, ent, info, GetEntByID, GetConstByID)
 end
