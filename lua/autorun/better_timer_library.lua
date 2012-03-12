@@ -1,7 +1,7 @@
 
 -- More efficient timers
 -- Made by Divran - 14/01/12
--- Avoids garry crap like unpack({...})
+-- Avoids garry crap like unpack({...}) 
 
 if SERVER then
 	AddCSLuaFile("autorun/better_timer_library.lua")

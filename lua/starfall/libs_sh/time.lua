@@ -119,8 +119,8 @@ function time_library.remove(name)
 	return timerx.Remove(timername)
 end
 
---- Gets the timer. If no timer is specified, returns all timers.
--- @param name Timer name (optional)
+--- Gets the timer.
+-- @param name Timer name
 -- @return true/false on success/failure
 function time_library.get(name)
 	SF.CheckType(name,"string")
