@@ -97,6 +97,16 @@ end
 -- @field CONTENTS_HITBOX
 local trace_library, _ = SF.Libraries.Register("trace")
 
+
+-- Enumerations
+local string_match = string.match
+for k,v in pairs( _E ) do
+	if string_match( k, "^MAT" ) or string_match( k, "^HITGROUP" ) or string_match( k, "^MASK" ) or string_match( k, "^CONTENTS" ) then
+		trace_library[k] = v
+	end
+end
+
+--[[
 -- Material Enumeration
 trace_library.MAT_ANTLION = MAT_ANTLION
 trace_library.MAT_BLOODYFLESH = MAT_BLOODYFLESH
@@ -184,6 +194,7 @@ trace_library.CONTENTS_DETAIL = CONTENTS_DETAIL
 trace_library.CONTENTS_TRANSLUCENT = CONTENTS_TRANSLUCENT
 trace_library.CONTENTS_LADDER = CONTENTS_LADDER
 trace_library.CONTENTS_HITBOX = CONTENTS_HITBOX
+]]
 
 -- Local functions
 

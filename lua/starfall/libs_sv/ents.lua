@@ -15,8 +15,19 @@ SF.Permissions:registerPermission({
 -- ------------------------- Internal Library ------------------------- --
 
 --- Gets the entity's owner
--- TODO: Optimize this!
--- @return The entities owner, or nil if not found
+
+-- @return The entity's owner, or nil if not found
+function SF.Entities.GetOwner(entity)
+	if not SF.Entities.IsValid( entity ) then return end
+	if entity:IsPlayer() then return entity end
+	
+	-- Not sure if this is a good solution
+	if CPPI then return entity:CPPIGetOwner() end
+	
+	-- Either add the OnDieFunctions hack back in, or steal E2's GetOwner function.
+end
+
+--[[
 function SF.Entities.GetOwner(entity)
 	local valid = SF.Entities.IsValid
 	if not valid(entity) then return end
@@ -44,6 +55,7 @@ function SF.Entities.GetOwner(entity)
 		end
 	end
 	
+	-- This doesn't work. GetOwner in Gmod doesn't do what it says it does.
 	if entity.GetOwner then
 		local ply = entity:GetOwner()
 		if valid(ply) then return ply end
@@ -51,18 +63,27 @@ function SF.Entities.GetOwner(entity)
 
 	return nil
 end
+]]
 
 --- Checks to see if a player can modify an entity without the override permission
 -- @param ply The player
 -- @param ent The entity being modified
 function SF.Entities.CanModify(ply, ent)
-	return (CPPI and ent:CPPICanPhysgun(ply)) or SF.Entities.GetOwner(ent) == ply
+	return SF.Entities.GetOwner(ent) == ply or hook.Call( "CanTool", GAMEMODE, ply, {Entity = ent}, "Starfall" )
+end
+local canModify = SF.Entities.CanModify
+
+--- Checks to see if a player can modify an entity WITH the override permission
+-- @param ply The player
+-- @param ent The entity being modified
+function SF.Entities.HasPermission(ply,ent)
+	return canModify(SF.instance.player, ent) or SF.instance.permissions:checkPermission("Modify All Entities")
 end
 
 local isValid = SF.Entities.IsValid
 local getPhysObject = SF.Entities.GetPhysObject
 local getOwner = SF.Entities.GetOwner
-local canModify = SF.Entities.CanModify
+local hasPermission = SF.Entities.HasPermission
 
 -- Add wire inputs/outputs
 local function postload()
@@ -101,23 +122,35 @@ end
 
 --- Applies linear force to the entity
 -- @param vec The force vector
--- @param offset An optional offset position (TODO: Local or world?)
-function ents_methods:applyForce(vec, offset)
+function ents_methods:applyForce(vec)
+	SF.CheckType(self,ents_metatable)
+	SF.CheckType(vec,"Vector")
+	
+	local ent = unwrap(self)
+	if not isValid(ent) then return false, "entity not valid" end
+	if not hasPermission(SF.instance.player, ent) then return false, "access denied" end
+	local phys = getPhysObject(ent)
+	if not phys then return false, "entity has no physics object" end
+	
+	phys:ApplyForceCenter(vec)
+	return true
+end
+
+--- Applies linear force to the entity
+-- @param vec The force vector
+-- @param offset An optional offset position
+function ents_methods:applyForceOffset(vec, offset)
 	SF.CheckType(self,ents_metatable)
 	SF.CheckType(vec,"Vector")
 	if offset then SF.CheckType(offset,"Vector") end
 	
 	local ent = unwrap(self)
 	if not isValid(ent) then return false, "entity not valid" end
-	if not canModify(SF.instance.player, ent) or SF.instance.permissions:checkPermission("Modify All Entities") then return false, "access denied" end
+	if not hasPermission(SF.instance.player, ent) then return false, "access denied" end
 	local phys = getPhysObject(ent)
 	if not phys then return false, "entity has no physics object" end
 	
-	if offset == nil then
-		phys:ApplyForceCenter(vec)
-	else
-		phys:ApplyForceOffset(vec,offset)
-	end
+	phys:ApplyForceOffset(vec,offset)
 	return true
 end
 
@@ -130,7 +163,7 @@ function ents_methods:applyAngForce(ang)
 	
 	local ent = unwrap(self)
 	if not isValid(ent) then return false, "entity not valid" end
-	if not canModify(SF.instance.player, ent) or SF.instance.permissions:checkPermission("Modify All Entities") then return false, "access denied" end
+	if not hasPermission(SF.instance.player, ent) then return false, "access denied" end
 	local phys = getPhysObject(ent)
 	if not phys then return false, "entity has no physics object" end
 	
@@ -171,7 +204,7 @@ function ents_methods:applyTorque(tq)
 	
 	local ent = unwrap(self)
 	if not isValid(ent) then return false, "entity not valid" end
-	if not canModify(SF.instance.player, ent) or SF.instance.permissions:checkPermission("Modify All Entities") then return false, "access denied" end
+	if not hasPermission(SF.instance.player, ent) then return false, "access denied" end
 	local phys = getPhysObject(ent)
 	if not phys then return false, "entity has no physics object" end
 	
@@ -197,6 +230,17 @@ function ents_methods:applyTorque(tq)
 	return true
 end
 
+-- This function clamps the position before moving the entity (copied from E2)
+local minx, miny, minz = -16384,-16384,-16384
+local maxx, maxy, maxz =  16384, 16384, 16384
+local clamp = math.Clamp
+local function clampPos( pos )
+	pos.x = clamp( pos.x, minx, maxx )
+	pos.y = clamp( pos.y, miny, maxy )
+	pos.z = clamp( pos.z, minz, maxz )
+	return pos
+end
+
 --- Sets the entitiy's position
 -- @param vec New position
 function ents_methods:setPos(vec)
@@ -205,14 +249,11 @@ function ents_methods:setPos(vec)
 	
 	local ent = unwrap(self)
 	if not isValid(ent) then return false, "entity not valid" end
-	if not canModify(SF.instance.player, ent) or SF.instance.permissions:checkPermission("Modify All Entities") then return false, "access denied" end
+	if not hasPermission(SF.instance.player, ent) then return false, "access denied" end
 	local phys = getPhysObject(ent)
-	if not phys then return false, "entity has no physics object" end
+	if not isValid(phys) then return false, "entity has no physics object" end
 	
-	-- TODO: Clamp insane positions to prevent crashing.
-	
-	phys:SetPos(vec)
-	phys:Wake()
+	phys:SetPos(clampPos(vec))
 	return true
 end
 
@@ -224,12 +265,11 @@ function ents_methods:setAng(ang)
 	
 	local ent = unwrap(self)
 	if not isValid(ent) then return false, "entity not valid" end
-	if not canModify(SF.instance.player, ent) or SF.instance.permissions:checkPermission("Modify All Entities") then return false, "access denied" end
+	if not hasPermission(SF.instance.player, ent) then return false, "access denied" end
 	local phys = getPhysObject(ent)
-	if not phys then return false, "entity has no physics object" end
+	if not isValid(phys) then return false, "entity has no physics object" end
 	
 	phys:SetAngle(ang)
-	phys:Wake()
 	return true
 end
 
@@ -241,9 +281,9 @@ function ents_methods:setVel(vel)
 	
 	local ent = unwrap(self)
 	if not isValid(ent) then return false, "entity not valid" end
-	if not canModify(SF.instance.player, ent) or SF.instance.permissions:checkPermission("Modify All Entities") then return false, "access denied" end
+	if not hasPermission(SF.instance.player, ent) then return false, "access denied" end
 	local phys = getPhysObject(ent)
-	if not phys then return false, "entity has no physics object" end
+	if not isValid(phys) then return false, "entity has no physics object" end
 	
 	phys:SetVelocity(vel)
 	return true
@@ -254,12 +294,11 @@ function ents_methods:setFrozen(ent, freeze)
 	
 	local ent = unwrap(self)
 	if not isValid(ent) then return false, "entity not valid" end
-	if not canModify(SF.instance.player, ent) or SF.instance.permissions:checkPermission("Modify All Entities") then return false, "access denied" end
+	if not hasPermission(SF.instance.player, ent) then return false, "access denied" end
 	local phys = getPhysObject(ent)
-	if not phys then return false, "entity has no physics object" end
+	if not isValid(phys) then return false, "entity has no physics object" end
 	
 	phys:EnableMotion(not (freeze and true or false))
-	phys:Wake()
 	return true
 end
 
@@ -268,7 +307,7 @@ function ents_methods:setNotSolid(notsolid)
 	
 	local ent = unwrap(self)
 	if not isValid(ent) then return false, "entity not valid" end
-	if not canModify(SF.instance.player, ent) or SF.instance.permissions:checkPermission("Modify All Entities") then return false, "access denied" end
+	if not hasPermission(SF.instance.player, ent) then return false, "access denied" end
 	
 	ent:SetNotSolid(notsolid and true or false)
 	return true
@@ -279,11 +318,76 @@ function ents_methods:enableGravity(grav)
 	
 	local ent = unwrap(self)
 	if not isValid(ent) then return false, "entity not valid" end
-	if not canModify(SF.instance.player, ent) or SF.instance.permissions:checkPermission("Modify All Entities") then return false, "access denied" end
+	if not hasPermission(SF.instance.player, ent) then return false, "access denied" end
 	local phys = getPhysObject(ent)
-	if not phys then return false, "entity has no physics object" end
+	if not isValid(phys) then return false, "entity has no physics object" end
 	
 	phys:EnableGravity(grav and true or false)
+	return true
+end
+
+function ents_methods:wake()
+	SF.CheckType(self,ents_metatable)
+	
+	local ent = unwrap(self)
+	if not isValid(ent) then return false, "entity not valid" end
+	if not hasPermission(SF.instance.player, ent) then return false, "access denied" end
+	
+	local phys = getPhysicsObject(ent)
+	if not isValid(phys) then return false, "entity has no physics object" end
+	
 	phys:Wake()
+	return true
+end
+
+function ents_methods:setColor( color, alpha )
+	SF.CheckType(self,ents_metatable)
+	SF.CheckType(color,"Vector")
+	alpha = alpha or 255
+	SF.CheckType(alpha,"number")
+	
+	local ent = unwrap(self)
+	if not isValid(ent) then return false, "entity not valid" end
+	if not hasPermission(SF.instance.player, ent) then return false, "access denied" end
+	
+	ent:SetColor( Color(color.x,color.y,color.z,alpha) )
+	return true
+end
+
+function ents_methods:getColor()
+	SF.CheckType(self,ents_metatable)
+	
+	local ent = unwrap(self)
+	if not isValid(ent) then return false, "entity not valid" end
+	if not hasPermission(SF.instance.player, ent) then return false, "access denied" end
+	
+	return ent:GetColor() -- NOTE: This function will return a Color object in Gmod beta!
+end
+
+
+function ents_methods:setMaterial( material )
+	SF.CheckType(self,ents_metatable)
+	SF.CheckType(material,"string")
+	
+	local ent = unwrap(self)
+	if not isValid(ent) then return false, "entity not valid" end
+	if not hasPermission(SF.instance.player, ent) then return false, "access denied" end
+	
+	ent:SetMaterial( material )
+	return true
+end
+
+function ents_methods:setMass( mass )
+	SF.CheckType(self,ents_metatable)
+	SF.CheckType(mass,"Normal")
+	
+	local ent = unwrap(self)
+	if not isValid(ent) then return false, "entity not valid" end
+	if not hasPermission(SF.instance.player, ent) then return false, "access denied" end
+	
+	local phys = ent:GetPhysicsObject()
+	if not isValid(phys) then return false, "entity has no physics object" end
+	
+	phys:SetMass( mass )
 	return true
 end

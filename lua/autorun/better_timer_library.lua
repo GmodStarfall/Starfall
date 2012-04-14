@@ -1,7 +1,7 @@
 
 -- More efficient timers
 -- Made by Divran - 14/01/12
--- Avoids garry crap like unpack({...})
+-- Avoids garry crap like unpack({...}) 
 
 if SERVER then
 	AddCSLuaFile("autorun/better_timer_library.lua")
@@ -80,6 +80,8 @@ function Adjust( name, delay, reps, func, ... )
 		
 		return curtimer
 	else -- Didn't exist; create new.
+		if not delay or not reps or not func then return end -- There's no point in creating a new timer if any of these are nil...
+		
 		local curtimer = { 	
 							name = name,
 							starttime = CurTime(),
@@ -163,7 +165,7 @@ function Get( name )
 	if Exists( name ) then
 		return timers[timers_lookup[name]]
 	else
-		return timers
+		return timers, timers_lookup
 	end
 end
 
