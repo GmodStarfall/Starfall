@@ -47,6 +47,7 @@ function SF.Callback.new()
 	local table = {}
 	table.listeners = {}
 	setmetatable( table, P_meta )
+	setmetatable( table.listeners, {["__mode"] = "kv"})
 	
 	return table
 end

@@ -182,6 +182,9 @@ end
 --- Wraps the given starfall function so that it may called directly by GMLua
 -- @param function the starfall function getting wrapped
 -- @return a function that when called will call the wrapped starfall function
+-- if you pass the string "STARFALL_GET_INSTANCE" (cap sensitive) to the 
+-- function returned by this, the function will return the instance that
+-- it will run the function in.
 function SF.WrapFunction( func )
 	local instance = SF.instance
 	
@@ -190,6 +193,10 @@ function SF.WrapFunction( func )
 	end
 	
 	local function returned_func( ... )
+		local list = {...}
+		if "STARFALL_GET_INSTANCE" == list[1] then
+			return instance
+		end
 		return SF.Unsanitize( instance:runFunction( func, SF.Sanitize(...) ) )
 	end
 	
@@ -220,18 +227,15 @@ local safe_types = {
 function SF.Sanitize( ... )
 	-- Sanitize ALL the things.
 	local return_list = {}
-	if not args then args = {...} end
+	local args = {...}
 	
 	for key, value in pairs(args) do
 		local typ = type( value )
 		if safe_types[ typ ] then
 			return_list[key] = value
 			
-		elseif typ == "Entity" then
+		elseif typ == "Entity" or typ == "Player" or typ == "NPC" then
 			return_list[key] = SF.Entities.Wrap(value)
-			
-		elseif typ == "function" then
-			return_list[key] = nil
 			
 		elseif typ == "table" and dgetmeta(value) ~= nil then
 			return_list[key] = SF.WrapObject(value)
@@ -260,27 +264,25 @@ function SF.Unsanitize( ... )
 	local args = {...}
 	
 	for key, value in pairs( args ) do
-		if type(value) == "table" and dgetmeta(value) then
+		local typ = type(value)
+		if typ == "table" and dgetmeta(value) then
 			local unwrapped = SF.UnwrapObject(value)
 			if nil == unwrapped then
 				unwrapped = value
 			end
 			return_list[key] = unwrapped
 		
-		elseif type(value) == "table" then
+		elseif typ == "table" then
 			for k,v in pairs(value) do
 				return_list[SF.Unsanitize(k)] = SF.Unsanitize(v)
 			end
 			
-		elseif type(value) == "Entity" then
-			local unwrap = SF.Entities.Unwrap(value)
-			
-			return_list[key] = unwrap
-		
 		else
 			return_list[key] = value
 		end
 	end
+	
+	return unpack(return_list)
 end
 
 -- Library loading
