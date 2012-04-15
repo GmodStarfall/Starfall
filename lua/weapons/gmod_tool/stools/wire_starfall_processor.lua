@@ -90,6 +90,7 @@ function TOOL:LeftClick( trace )
 	if CLIENT then return true end
 
 	if trace.Entity:IsValid() and trace.Entity:GetClass() == "gmod_wire_starfall_processor" then
+		trace.Entity:OnRemove()
 		RequestSend(self:GetOwner(),trace.Entity)
 		return true
 	end

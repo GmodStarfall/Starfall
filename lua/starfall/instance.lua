@@ -228,7 +228,7 @@ end
 
 --- Deinitializes the instance. After this, the instance should be discarded.
 function SF.Instance:deinitialize()
-	self:runLibraryHook("deinitialize")
+	self:runLibraryHook("deinitialize", self)
 	SF.allInstances[self] = self
 	self.error = true
 end
