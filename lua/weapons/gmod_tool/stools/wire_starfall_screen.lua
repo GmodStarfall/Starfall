@@ -89,7 +89,7 @@ function TOOL:LeftClick( trace )
 	if CLIENT then return true end
 
 	if trace.Entity:IsValid() and trace.Entity:GetClass() == "gmod_wire_starfall_screen" then
-		trace.Entity:OnRemove()
+		trace.Entity.instance:deinitialize()
 		RequestSend(self:GetOwner(),trace.Entity)
 		return true
 	end
