@@ -194,7 +194,7 @@ function SF.WrapFunction( func )
 	
 	local function returned_func( ... )
 		local list = {...}
-		if type(list[1]) and "STARFALL_GET_INSTANCE" == list[1] then
+		if "STARFALL_GET_INSTANCE" == list[1] then
 			return instance
 		end
 		return SF.Unsanitize( instance:runFunction( func, SF.Sanitize(...) ) )
