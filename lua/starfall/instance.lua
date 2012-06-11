@@ -47,7 +47,7 @@ function SF.Instance:runWithOps(func,...)
 		
 		-- Interval table:
 		-- 1..5..25..125..500(625)
-		if self.ops > measure_interval * 5 then
+		if measure_interval ~= 500 and self.ops > measure_interval * 5 then
 			measure_interval = math.Clamp(measure_interval * 5, 0, 500)
 			
 			debug.sethook(nil) -- turn off
