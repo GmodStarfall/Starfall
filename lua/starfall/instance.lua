@@ -36,23 +36,33 @@ end
 -- @return Any values func returned
 function SF.Instance:runWithOps(func,...)
 	local maxops = self.context.ops
+	local measure_interval = 1
 	
 	local function ophook(event)
-		self.ops = self.ops + 500
+		self.ops = self.ops + measure_interval
 		if self.ops > maxops then
 			debug.sethook(nil)
 			error("Operations quota exceeded.",0)
+		end
+		
+		-- Interval table:
+		-- 1..5..25..125..500(625)
+		if measure_interval ~= 500 and self.ops > measure_interval * 5 then
+			measure_interval = math.Clamp(measure_interval * 5, 0, 500)
+			
+			debug.sethook(nil) -- turn off
+			debug.sethook(ophook,"",measure_interval)
 		end
 	end
 	
 	--local begin = SysTime()
 	--local beginops = self.ops
 	
-	debug.sethook(ophook,"",500)
+	debug.sethook(ophook,"",measure_interval)
 	local rt = {pcall(func, ...)}
 	debug.sethook(infloop_detection_replacement,"",500000000)
 	
-	--MsgN("SF: Exectued "..(self.ops-beginops).." instructions in "..(SysTime()-begin).." seconds")
+	--MsgN("SF: Executed "..(self.ops-beginops).." instructions in "..(SysTime()-begin).." seconds, finished measure interval: "..measure_interval)
 	
 	return unpack(rt)
 end
