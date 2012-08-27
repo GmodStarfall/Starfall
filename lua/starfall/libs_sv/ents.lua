@@ -191,7 +191,7 @@ function ents_methods:applyTorque(tq)
 	
 	-- Find two vectors perpendicular to the torque axis
 	local off
-	if abs(tq.x) > torqueamount * 0.1 or abs(tq.z) > torqueamount * 0.1 then
+	if math.abs(tq.x) > torqueamount * 0.1 or math.abs(tq.z) > torqueamount * 0.1 then
 		off = Vector(-tq.z, 0, tq.x)
 	else
 		off = Vector(-tq.y, tq.x, 0)
