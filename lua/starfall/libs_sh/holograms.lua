@@ -50,7 +50,7 @@ end
 --- Sets the hologram angle
 function hologram_methods:setAng(ang)
 	SF.CheckType(self, hologram_metamethods)
-	SF.CheckType(pos, "Angle")
+	SF.CheckType(ang, "Angle")
 	local holo = unwrap(self)
 	if holo then holo:SetAngles(ang) end
 end
@@ -59,7 +59,7 @@ if CLIENT then
 	--- Sets the hologram scale
 	function hologram_methods:setScale(scale)
 		SF.CheckType(self, hologram_metamethods)
-		SF.CheckType(pos, "Vector")
+		SF.CheckType(scale, "Vector")
 		local holo = unwrap(self)
 		if holo then holo:SetScale(scale) end
 	end
@@ -75,7 +75,7 @@ if CLIENT then
 else
 	function hologram_methods:setScale(scale)
 		SF.CheckType(self, hologram_metamethods)
-		SF.CheckType(pos, "Vector")
+		SF.CheckType(scale, "Vector")
 		local holo = unwrap(self)
 		if holo then
 			umsg.Start("starfall_hologram_scale")
