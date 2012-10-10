@@ -15,7 +15,7 @@ cleanup.Register( "starfall_screen" )
 
 if SERVER then
 	if net then -- Have GM13 net library
-		net.Recieve("starfall_screen_upload", function(len, ply)
+		net.Receive("starfall_screen_upload", function(len, ply)
 			local ent = net.ReadEntity()
 			if not ent or not ent:IsValid() then
 				ErrorNoHalt("SF: Player "..ply:GetName().." tried to send code to a nonexistant entity.\n")
@@ -28,7 +28,7 @@ if SERVER then
 			end
 			
 			local mainfile = net.ReadString()
-			local numfiles = net.ReadByte()
+			local numfiles = net.ReadData(1)
 			local task = {
 				mainfile = mainfile,
 				files = {},
@@ -100,14 +100,14 @@ if SERVER then
 		umsg.End()
 	end
 else
-	language.Add( "Tool_wire_starfall_screen_name", "Starfall - Screen (Wire)" )
-    language.Add( "Tool_wire_starfall_screen_desc", "Spawns a starfall screen" )
-    language.Add( "Tool_wire_starfall_screen_0", "Primary: Spawns a screen / uploads code, Secondary: Opens editor" )
+	language.Add( "tool.wire_starfall_screen.name", "Starfall - Screen (Wire)" )
+    language.Add( "tool.wire_starfall_screen.desc", "Spawns a starfall screen" )
+    language.Add( "tool.wire_starfall_screen.0", "Primary: Spawns a screen / uploads code, Secondary: Opens editor" )
 	language.Add( "SBox_max_starfall_Screen", "You've hit the Starfall Screen limit!" )
 	language.Add( "undone_Wire Starfall Screen", "Undone Starfall Screen" )
 	
 	if net then
-		net.Recieve("starfall_screen_requpload", function(len, ply)
+		net.Receive("starfall_screen_requpload", function(len, ply)
 			if not SF.Editor.editor then return end
 			
 			local ent = net.ReadEntity()
@@ -118,7 +118,7 @@ else
 				net.Start("starfall_screen_upload")
 					net.WriteEntity(ent)
 					net.WriteString(buildlist.mainfile)
-					net.WriteByte(buildlist.filecount)
+					net.WriteData(buildlist.filecount, 1)
 					for name, file in pairs(buildlist.files) do
 						net.WriteString(name)
 						net.WriteString(file)
@@ -226,7 +226,7 @@ if CLIENT then
 	end
 	
 	function TOOL.BuildCPanel(panel)
-		panel:AddControl("Header", { Text = "#Tool_wire_starfall_screen_name", Description = "#Tool_wire_starfall_screen_desc" })
+		panel:AddControl("Header", { Text = "#tool.wire_starfall_screen.name", Description = "#tool.wire_starfall_screen.desc" })
 		
 		local modelpanel = WireDermaExts.ModelSelect(panel, "wire_starfall_screen_Model", list.Get("WireScreenModels"), 2)
 		panel:AddControl("Label", {Text = ""})

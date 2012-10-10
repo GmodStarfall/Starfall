@@ -9,6 +9,11 @@ assert(SF, "Starfall didn't load correctly!")
 local context = SF.CreateContext()
 local screens = {}
 
+if SERVER then
+	util.AddNetworkString("starfall_screen_requpload")
+	util.AddNetworkString("starfall_screen_upload")
+end
+
 hook.Add("PlayerInitialSpawn","sf_screen_download",function(ply)
 	local tbl = {}
 	for _,s in pairs(screens) do

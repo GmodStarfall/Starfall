@@ -15,7 +15,7 @@ cleanup.Register( "starfall_processor" )
 
 if SERVER then
 	if net then -- Have GM13 net library
-		net.Recieve("starfall_processor_upload", function(len, ply)
+		net.Receive("starfall_processor_upload", function(len, ply)
 			local ent = net.ReadEntity()
 			if not ent or not ent:IsValid() then
 				ErrorNoHalt("SF: Player "..ply:GetName().." tried to send code to a nonexistant entity.\n")
@@ -28,7 +28,7 @@ if SERVER then
 			end
 			
 			local mainfile = net.ReadString()
-			local numfiles = net.ReadByte()
+			local numfiles = net.ReadData(1)
 			local task = {
 				mainfile = mainfile,
 				files = {},
@@ -94,14 +94,14 @@ if SERVER then
 		return sf
 	end
 else
-	language.Add( "Tool_wire_starfall_processor_name", "Starfall - Processor (Wire)" )
-    language.Add( "Tool_wire_starfall_processor_desc", "Spawns a starfall processor" )
-    language.Add( "Tool_wire_starfall_processor_0", "Primary: Spawns a processor / uploads code, Secondary: Opens editor" )
+	language.Add( "tool.wire_starfall_processor.name", "Starfall - Processor (Wire)" )
+    language.Add( "tool.wire_starfall_processor.desc", "Spawns a starfall processor" )
+    language.Add( "tool.wire_starfall_processor.0", "Primary: Spawns a processor / uploads code, Secondary: Opens editor" )
 	language.Add( "sboxlimit_wire_starfall_processor", "You've hit the Starfall processor limit!" )
 	language.Add( "undone_Wire Starfall Processor", "Undone Starfall Processor" )
 	
 	if net then
-		net.Recieve("starfall_processor_requpload", function(len, ply)
+		net.Receive("starfall_processor_requpload", function(len, ply)
 			if not SF.Editor.editor then return end
 			
 			local ent = net.ReadEntity()
@@ -112,7 +112,7 @@ else
 				net.Start("starfall_processor_upload")
 					net.WriteEntity(ent)
 					net.WriteString(buildlist.mainfile)
-					net.WriteByte(buildlist.filecount)
+					net.WriteData(buildlist.filecount, 1)
 					for name, file in pairs(buildlist.files) do
 						net.WriteString(name)
 						net.WriteString(file)
@@ -220,7 +220,7 @@ if CLIENT then
 	end
 	
 	function TOOL.BuildCPanel(panel)
-		panel:AddControl("Header", { Text = "#Tool_wire_starfall_processor_name", Description = "#Tool_wire_starfall_processor_desc" })
+		panel:AddControl("Header", { Text = "#tool.wire_starfall_processor.name", Description = "#tool.wire_starfall_processor.desc" })
 		
 		local modelPanel = WireDermaExts.ModelSelect(panel, "wire_starfall_processor_Model", list.Get("Wire_gate_Models"), 2)
 		panel:AddControl("Label", {Text = ""})
