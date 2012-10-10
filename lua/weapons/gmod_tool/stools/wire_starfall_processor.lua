@@ -94,9 +94,9 @@ if SERVER then
 		return sf
 	end
 else
-	language.Add( "Tool_wire_starfall_processor_name", "Starfall - Processor (Wire)" )
-    language.Add( "Tool_wire_starfall_processor_desc", "Spawns a starfall processor" )
-    language.Add( "Tool_wire_starfall_processor_0", "Primary: Spawns a processor / uploads code, Secondary: Opens editor" )
+	language.Add( "tool.wire_starfall_processor.name", "Starfall - Processor (Wire)" )
+    language.Add( "tool.wire_starfall_processor.desc", "Spawns a starfall processor" )
+    language.Add( "tool.wire_starfall_processor.0", "Primary: Spawns a processor / uploads code, Secondary: Opens editor" )
 	language.Add( "sboxlimit_wire_starfall_processor", "You've hit the Starfall processor limit!" )
 	language.Add( "undone_Wire Starfall Processor", "Undone Starfall Processor" )
 	
@@ -220,7 +220,7 @@ if CLIENT then
 	end
 	
 	function TOOL.BuildCPanel(panel)
-		panel:AddControl("Header", { Text = "#Tool_wire_starfall_processor_name", Description = "#Tool_wire_starfall_processor_desc" })
+		panel:AddControl("Header", { Text = "#tool.wire_starfall_processor.name", Description = "#tool.wire_starfall_processor.desc" })
 		
 		local modelPanel = WireDermaExts.ModelSelect(panel, "wire_starfall_processor_Model", list.Get("Wire_gate_Models"), 2)
 		panel:AddControl("Label", {Text = ""})

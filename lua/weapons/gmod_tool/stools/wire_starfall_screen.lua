@@ -100,9 +100,9 @@ if SERVER then
 		umsg.End()
 	end
 else
-	language.Add( "Tool_wire_starfall_screen_name", "Starfall - Screen (Wire)" )
-    language.Add( "Tool_wire_starfall_screen_desc", "Spawns a starfall screen" )
-    language.Add( "Tool_wire_starfall_screen_0", "Primary: Spawns a screen / uploads code, Secondary: Opens editor" )
+	language.Add( "tool.wire_starfall_screen.name", "Starfall - Screen (Wire)" )
+    language.Add( "tool.wire_starfall_screen.desc", "Spawns a starfall screen" )
+    language.Add( "tool.wire_starfall_screen.0", "Primary: Spawns a screen / uploads code, Secondary: Opens editor" )
 	language.Add( "SBox_max_starfall_Screen", "You've hit the Starfall Screen limit!" )
 	language.Add( "undone_Wire Starfall Screen", "Undone Starfall Screen" )
 	
@@ -226,7 +226,7 @@ if CLIENT then
 	end
 	
 	function TOOL.BuildCPanel(panel)
-		panel:AddControl("Header", { Text = "#Tool_wire_starfall_screen_name", Description = "#Tool_wire_starfall_screen_desc" })
+		panel:AddControl("Header", { Text = "#tool.wire_starfall_screen.name", Description = "#tool.wire_starfall_screen.desc" })
 		
 		local modelpanel = WireDermaExts.ModelSelect(panel, "wire_starfall_screen_Model", list.Get("WireScreenModels"), 2)
 		panel:AddControl("Label", {Text = ""})
