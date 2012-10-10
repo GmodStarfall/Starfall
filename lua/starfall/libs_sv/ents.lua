@@ -303,3 +303,47 @@ function ents_methods:enableGravity(grav)
 	phys:Wake()
 	return true
 end
+
+--- Sets the entity's parent
+-- @param parent The entity we should parent to or nil to deparent
+function ents_methods:setParent(parent)
+	SF.CheckType(self,ents_metatable)
+	local child = unwrap(self)
+	if not isValid(child) then return false, "entity not valid" end
+	if child:IsPlayer() then return false, "cannot parent player" end
+	if not canModify(SF.instance.player, child) or SF.instance.permissions:checkPermission("Modify All Entities") then return false, "access denied" end
+
+	if parent then
+		SF.CheckType(parent,ents_metatable)
+		local parent = unwrap(parent)
+		if not isValid(parent) then return false, "parent entity not valid" end
+
+		-- do not parent to self
+		if child == parent then return false, "cannot parent to self" end
+		
+		-- do not parent to players
+		if parent:IsPlayer() then return false, "cannot parent to players" end
+
+		-- can we modify parent?
+		if not canModify(SF.instance.player, parent) or SF.instance.permissions:checkPermission("Modify All Entities") then return false, "parent access denied" end
+
+		-- Prevent cyclic parenting ( = crashes )
+		local checkparent = parent
+		while IsValid(checkparent:GetParent()) do
+			checkparent = checkparent:GetParent()
+			if checkparent == child then return false, "cyclic parenting detected" end
+		end
+
+		child:SetParent(parent)
+		
+		checkparent = child:GetParent()
+		if not checkparent:IsValid() and checkparent == parent then return false, "parenting failed" end
+	else
+		child:SetParent(nil)
+		
+		local checkparent = child:GetParent()
+		if checkparent:IsValid() then return false, "deparenting failed" end
+	end
+
+	return true
+end

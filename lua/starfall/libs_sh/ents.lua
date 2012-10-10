@@ -308,6 +308,16 @@ function ents_methods:eyePos()
 	return ent:EyePos()
 end
 
+--- Gets the entity's parent
+-- @shared
+-- @return The parent entity
+function ents_methods:parent()
+	SF.CheckType(self,ents_metamethods)
+	local ent = unwrap(self)
+	if not isValid(ent) then return nil, "invalid entity" end
+	return ent:GetParent()
+end
+
 -- ------------------------- Player Methods ------------------------- --
 
 player_methods.__index = SF.Entities.Methods
