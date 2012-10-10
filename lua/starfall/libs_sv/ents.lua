@@ -299,7 +299,7 @@ function ents_methods:enableGravity(grav)
 end
 
 --- Sets the entity's parent
--- @param parent The entity we should parent to or nil for unparent
+-- @param parent The entity we should parent to or nil to deparent
 function ents_methods:setParent(parent)
 	SF.CheckType(self,ents_metatable)
 	local child = unwrap(self)
@@ -329,8 +329,14 @@ function ents_methods:setParent(parent)
 		end
 
 		child:SetParent(parent)
+		
+		checkparent = child:GetParent()
+		if not checkparent:IsValid() and checkparent == parent then return false, "parenting failed" end
 	else
 		child:SetParent(nil)
+		
+		local checkparent = child:GetParent()
+		if checkparent:IsValid() then return false, "deparenting failed" end
 	end
 
 	return true
