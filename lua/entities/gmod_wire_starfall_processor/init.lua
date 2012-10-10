@@ -12,6 +12,11 @@ ENT.OverlayDelay = 0
 local context = SF.CreateContext()
 local name = nil
 
+if SERVER then
+	util.AddNetworkString("starfall_processor_upload")
+	util.AddNetworkString("starfall_processor_requpload")
+end
+
 function ENT:UpdateState(state)
 	if name then
 		self:SetOverlayText("Starfall Processor\n"..name.."\n"..state)

@@ -15,7 +15,7 @@ cleanup.Register( "starfall_processor" )
 
 if SERVER then
 	if net then -- Have GM13 net library
-		net.Recieve("starfall_processor_upload", function(len, ply)
+		net.Receive("starfall_processor_upload", function(len, ply)
 			local ent = net.ReadEntity()
 			if not ent or not ent:IsValid() then
 				ErrorNoHalt("SF: Player "..ply:GetName().." tried to send code to a nonexistant entity.\n")
@@ -101,7 +101,7 @@ else
 	language.Add( "undone_Wire Starfall Processor", "Undone Starfall Processor" )
 	
 	if net then
-		net.Recieve("starfall_processor_requpload", function(len, ply)
+		net.Receive("starfall_processor_requpload", function(len, ply)
 			if not SF.Editor.editor then return end
 			
 			local ent = net.ReadEntity()
