@@ -304,6 +304,7 @@ function ents_methods:setParent(parent)
 	SF.CheckType(self,ents_metatable)
 	local child = unwrap(self)
 	if not isValid(child) then return false, "entity not valid" end
+	if child:IsPlayer() then return false, "cannot parent player" end
 	if not canModify(SF.instance.player, child) or SF.instance.permissions:checkPermission("Modify All Entities") then return false, "access denied" end
 
 	if parent then
@@ -313,6 +314,9 @@ function ents_methods:setParent(parent)
 
 		-- do not parent to self
 		if child == parent then return false, "cannot parent to self" end
+		
+		-- do not parent to players
+		if parent:IsPlayer() then return false, "cannot parent to players" end
 
 		-- can we modify parent?
 		if not canModify(SF.instance.player, parent) or SF.instance.permissions:checkPermission("Modify All Entities") then return false, "parent access denied" end
