@@ -28,7 +28,7 @@ if SERVER then
 			end
 			
 			local mainfile = net.ReadString()
-			local numfiles = net.ReadByte()
+			local numfiles = net.ReadData(1)
 			local task = {
 				mainfile = mainfile,
 				files = {},
@@ -118,7 +118,7 @@ else
 				net.Start("starfall_screen_upload")
 					net.WriteEntity(ent)
 					net.WriteString(buildlist.mainfile)
-					net.WriteByte(buildlist.filecount)
+					net.WriteData(buildlist.filecount, 1)
 					for name, file in pairs(buildlist.files) do
 						net.WriteString(name)
 						net.WriteString(file)
