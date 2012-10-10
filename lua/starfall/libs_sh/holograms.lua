@@ -1,4 +1,3 @@
-
 --- Library for creating and manipulating physics-less models AKA "Holograms".
 -- @shared
 local holograms_library, _ = SF.Libraries.Register("holograms")
@@ -90,7 +89,10 @@ function hologram_methods:setParent(parent, attachment)
 		SF.CheckType(parent, hologram_metamethods)
 		local parent = unwrap(parent)
 		if not parent then return end
-		
+
+		-- do not parent to self
+		if child == parent then return end
+			
 		-- Prevent cyclic parenting ( = crashes )
 		local checkparent = parent
 		while IsValid(checkparent:GetParent()) do
