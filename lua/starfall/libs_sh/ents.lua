@@ -315,7 +315,7 @@ function ents_methods:parent()
 	SF.CheckType(self,ents_metamethods)
 	local ent = unwrap(self)
 	if not isValid(ent) then return nil, "invalid entity" end
-	return ent:GetParent()
+	return wrap(ent:GetParent())
 end
 
 -- ------------------------- Player Methods ------------------------- --
