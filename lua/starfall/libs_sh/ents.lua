@@ -310,12 +310,16 @@ end
 
 --- Gets the entity's parent
 -- @shared
--- @return The parent entity
+-- @return The parent entity or nil
 function ents_methods:parent()
 	SF.CheckType(self,ents_metamethods)
 	local ent = unwrap(self)
 	if not isValid(ent) then return nil, "invalid entity" end
-	return wrap(ent:GetParent())
+	local parent = ent:GetParent()
+	
+	if not parent and parent:IsValid() then return nil, "not parented" end
+
+	return wrap(parent)
 end
 
 -- ------------------------- Player Methods ------------------------- --

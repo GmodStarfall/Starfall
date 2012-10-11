@@ -331,12 +331,12 @@ function ents_methods:setParent(parent)
 		child:SetParent(parent)
 		
 		checkparent = child:GetParent()
-		if not checkparent:IsValid() and checkparent == parent then return false, "parenting failed" end
+		if not checkparent and checkparent:IsValid() and checkparent == parent then return false, "parenting failed" end
 	else
 		child:SetParent(nil)
 		
 		local checkparent = child:GetParent()
-		if checkparent:IsValid() then return false, "deparenting failed" end
+		if checkparent and checkparent:IsValid() then return false, "deparenting failed" end
 	end
 
 	return true
