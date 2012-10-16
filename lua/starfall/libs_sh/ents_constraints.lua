@@ -4,15 +4,6 @@
 
 assert(SF.Entities)
 
-SF.Constraints = {}
-
---- Constrains functions. Allows some basic constrains information and manipulation.
---- <br> Permissions: Manipulate Constraints - allows constraint manipulation
--- @shared
-local constraints_library, _ = SF.Libraries.Register("ents_constraints")
-
-SF.Constraints.Library = constraints_library
-
 local ents_methods = SF.Entities.Methods
 local ents_metatable = SF.Entities.Metatable
 

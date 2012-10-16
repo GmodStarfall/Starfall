@@ -3,9 +3,6 @@
 -------------------------------------------------------------------------------
 
 assert(SF.Entities)
-assert(SF.Constraints)
-
-local constraints_Library = SF.Constraints.Library
 
 local ents_methods = SF.Entities.Methods
 local ents_metatable = SF.Entities.Metatable
