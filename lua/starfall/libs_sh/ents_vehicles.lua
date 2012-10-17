@@ -21,6 +21,10 @@ function SF.Entities.Wrap(obj)
 	return w
 end
 
+local function isValid(entity)
+	return SF.Entities.IsValid(entity) and entity:IsVehicle()
+end
+
 -- ------------------------- Entity Methods ------------------------- --
 
 local ents_methods = SF.Entities.Methods
@@ -28,15 +32,13 @@ local ents_metatable = SF.Entities.Metatable
 
 local wrap, unwrap = SF.Entities.Wrap, SF.Entities.Unwrap
 
-local isValid = SF.Entities.IsValid
-
 --- Is the entity vehicle?
 -- @return Returns true if entity is vehicle
 function ents_methods:isVehicle()
 	SF.CheckType(self,ents_metatable)
 
 	local ent = unwrap(self)
-	if not isValid(ent) then return false, "invalid entity" end
+	if not SF.Entities.IsValid(ent) then return false, "invalid entity" end
 
 	return ent:IsVehicle()
 end
@@ -51,8 +53,6 @@ function vehicle_methods:lockPod(lock)
 
 	local ent = unwrap(self)
 	if not isValid(ent) then return nil, "invalid entity" end
-
-	if not ent:IsVehicle() then return false, "not a vehicle" end
 
 	if not SF.Entities.GetOwner(ent) == SF.instance.player then return false, "access denied" end
 
@@ -70,8 +70,6 @@ function vehicle_methods:killDriver()
 	local ent = unwrap(self)
 	if not isValid(ent) then return nil, "invalid entity" end
 
-	if not ent:IsVehicle() then return false, "not a vehicle" end
-
 	if not SF.Entities.GetOwner(ent) == SF.instance.player then return false, "access denied" end
 
 	local ply = ent:GetDriver()
@@ -84,8 +82,6 @@ function vehicle_methods:ejectDriver()
 
 	local ent = unwrap(self)
 	if not isValid(ent) then return nil, "invalid entity" end
-
-	if not ent:IsVehicle() then return false, "not a vehicle" end
 
 	if not SF.Entities.GetOwner(ent) == SF.instance.player then return false, "access denied" end
 
@@ -101,8 +97,6 @@ function vehicle_methods:driver()
 	local ent = unwrap(self)
 	if not isValid(ent) then return nil, "invalid entity" end
 
-	if not ent:IsVehicle() then return nil, "not a vehicle" end
-
 	local ply = ent:GetDriver()
 	if ply and ply:IsValid() and ply:IsPlayer() then return nil, "invalid driver" end
 
@@ -116,8 +110,6 @@ function vehicle_methods:passenger()
 
 	local ent = unwrap(self)
 	if not isValid(ent) then return nil, "invalid entity" end
-
-	if not ent:IsVehicle() then return nil, "not a vehicle" end
 
 	local ply = ent:GetPassenger()
 	if ply and ply:IsValid() and ply:IsPlayer() then return nil, "invalid passenger" end
