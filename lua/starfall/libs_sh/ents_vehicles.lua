@@ -22,7 +22,7 @@ function SF.Entities.Wrap(obj)
 end
 
 local function isValid(entity)
-	return SF.Entities.IsValid(entity) and entity:IsVehicle()
+	return (SF.Entities.IsValid(entity) and entity:IsVehicle())
 end
 
 -- ------------------------- Entity Methods ------------------------- --
@@ -52,7 +52,7 @@ function vehicle_methods:lockPod(lock)
 	SF.CheckType(lock,"boolean")
 
 	local ent = unwrap(self)
-	if not isValid(ent) then return nil, "invalid entity" end
+	if not isValid(ent) then return nil, "invalid vehicle entity" end
 
 	if not SF.Entities.GetOwner(ent) == SF.instance.player then return false, "access denied" end
 
@@ -68,7 +68,7 @@ function vehicle_methods:killDriver()
 	SF.CheckType(self,vehicle_metamethods)
 
 	local ent = unwrap(self)
-	if not isValid(ent) then return nil, "invalid entity" end
+	if not isValid(ent) then return nil, "invalid vehicle entity" end
 
 	if not SF.Entities.GetOwner(ent) == SF.instance.player then return false, "access denied" end
 
@@ -81,7 +81,7 @@ function vehicle_methods:ejectDriver()
 	SF.CheckType(self,vehicle_metamethods)
 
 	local ent = unwrap(self)
-	if not isValid(ent) then return nil, "invalid entity" end
+	if not isValid(ent) then return nil, "invalid vehicle entity" end
 
 	if not SF.Entities.GetOwner(ent) == SF.instance.player then return false, "access denied" end
 
@@ -95,7 +95,7 @@ function vehicle_methods:driver()
 	SF.CheckType(self,vehicle_metamethods)
 
 	local ent = unwrap(self)
-	if not isValid(ent) then return nil, "invalid entity" end
+	if not isValid(ent) then return nil, "invalid vehicle entity" end
 
 	local ply = ent:GetDriver()
 	if ply and ply:IsValid() and ply:IsPlayer() then return nil, "invalid driver" end
@@ -109,7 +109,7 @@ function vehicle_methods:passenger()
 	SF.CheckType(self,vehicle_metamethods)
 
 	local ent = unwrap(self)
-	if not isValid(ent) then return nil, "invalid entity" end
+	if not isValid(ent) then return nil, "invalid vehicle entity" end
 
 	local ply = ent:GetPassenger()
 	if ply and ply:IsValid() and ply:IsPlayer() then return nil, "invalid passenger" end
