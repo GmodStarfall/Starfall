@@ -22,7 +22,7 @@ function SF.Entities.Wrap(obj)
 end
 
 local function isValid(entity)
-	return SF.Entities.IsValid(entity) and entity:IsWeapon()
+	return (SF.Entities.IsValid(entity) and entity:IsWeapon())
 end
 
 -- ------------------------- Entity Methods ------------------------- --
@@ -46,7 +46,7 @@ end
 function weapon_methods:primaryAmmoType()
 	SF.CheckType(self,weapon_metamethods)
 	local ent = unwrap(self)
-	if not isValid(ent) then return nil, "invalid entity" end
+	if not isValid(ent) then return nil, "invalid weapon entity" end
 	return ent:GetPrimaryAmmoType()
 end
 
@@ -55,7 +55,7 @@ end
 function weapon_methods:secondaryAmmoType()
 	SF.CheckType(self,weapon_metamethods)
 	local ent = unwrap(self)
-	if not isValid(ent) then return nil, "invalid entity" end
+	if not isValid(ent) then return nil, "invalid weapon entity" end
 	return ent:GetSecondaryAmmoType()
 end
 
@@ -64,7 +64,7 @@ end
 function nweapon_methods:clip1()
 	SF.CheckType(self,weapon_metamethods)
 	local ent = unwrap(self)
-	if not isValid(ent) then return nil, "invalid entity" end
+	if not isValid(ent) then return nil, "invalid weapon entity" end
 	return ent:Clip1()
 end
 
@@ -73,6 +73,6 @@ end
 function weapon_methods:clip2()
 	SF.CheckType(self,weapon_metamethods)
 	local ent = unwrap(self)
-	if not isValid(ent) then return nil, "invalid entity" end
+	if not isValid(ent) then return nil, "invalid weapon entity" end
 	return ent:Clip2()
 end
