@@ -467,6 +467,8 @@ function ents_methods:eyePos()
 	return ent:EyePos()
 end
 
+-- ---------------- Look methods  -------- --
+
 --- Get material of entity
 -- @shared
 -- @return Returns material name
@@ -495,4 +497,40 @@ function ents_methods:skinCount()
 	local ent = unwrap(self)
 	if not isValid(ent) then return nil, "invalid entity" end
 	return ent:SkinCount() or 0
+end
+
+-- ---------------- Attachments methods  -------- --
+
+--- Get attachment position
+-- @shared
+-- @param attachment Attachment ID or name
+-- @return Position of attachment
+function ents_methods:attachmentPos(attachment)
+	SF.CheckType(self,ents_metamethods)
+	local ent = unwrap(self)
+	if not isValid(ent) then return nil, "invalid entity" end
+	if type(attachment) == "string" then
+		attachment = ent:LookupAttachment(attachment)
+	elseif not type(attachment) == "number" then
+		SF.CheckType(attachment,"string or number") -- force error
+	end
+	local attach = ent:GetAttachment(attachment)
+	return attach.Pos
+end
+
+--- Get attachment angle
+-- @shared
+-- @param attachment Attachment ID or name
+-- @return Angle of attachment
+function ents_methods:attachmentAng(attachment)
+	SF.CheckType(self,ents_metamethods)
+	local ent = unwrap(self)
+	if not isValid(ent) then return nil, "invalid entity" end
+	if type(attachment) == "string" then
+		attachment = ent:LookupAttachment(attachment)
+	elseif not type(attachment) == "number" then
+		SF.CheckType(attachment,"string or number") -- force error
+	end
+	local attach = ent:GetAttachment(attachment)
+	return attach.Ang
 end
