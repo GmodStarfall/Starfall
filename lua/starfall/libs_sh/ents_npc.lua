@@ -7,8 +7,8 @@ assert(SF.Entities)
 SF.NPC = {}
 local npc_methods, npc_metamethods = SF.Typedef("NPC", SF.Entities.Metatable)
 
-SF.NPC.Methods = player_methods
-SF.NPC.Metatable = player_metamethods
+SF.NPC.Methods = npc_methods
+SF.NPC.Metatable = npc_metamethods
 
 -- Overload entity wrap functions to handle NPC
 local dsetmeta = debug.setmetatable
@@ -22,7 +22,7 @@ function SF.Entities.Wrap(obj)
 end
 
 local function isValid(entity)
-	return SF.Entities.IsValid(entity) and entity:IsNPC()
+	return (SF.Entities.IsValid(entity) and entity:IsNPC())
 end
 
 -- ------------------------- Entity Methods ------------------------- --
