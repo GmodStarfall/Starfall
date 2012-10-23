@@ -61,7 +61,7 @@ function ents_methods:setColor(r,g,b,a)
 
 	local new_color = fixColor(r, g, b, a)
 
-	ent:SetRenderMode(new_color.a == 255 and 0 or 1)
+	ent:SetRenderMode(new_color.a == 255 and RENDERMODE_NORMAL or RENDERMODE_TRANSALPHA)
 	ent:SetColor(new_color)
 
 	if not compareColor(ent:GetColor(), new_color) then
@@ -89,7 +89,7 @@ function ents_methods:setAlpha(a)
 	local old_rmode = ent:GetRenderMode()
 	local new_color = Color(old_color.r,old_color.g,old_color.b,clamp(a, 0, 255))
 
-	ent:SetRenderMode(new_color.a == 255 and 0 or 1)
+	ent:SetRenderMode(new_color.a == 255 and RENDERMODE_NORMAL or RENDERMODE_TRANSALPHA)
 	ent:SetColor(new_color)
 
 	if not ent:GetColor().a == new_color.a then 
