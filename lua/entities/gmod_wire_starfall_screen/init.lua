@@ -3,6 +3,8 @@ AddCSLuaFile('cl_init.lua')
 AddCSLuaFile('shared.lua')
 include('shared.lua')
 
+util.AddNetworkString( "sf_screen_download" )
+
 include("starfall/SFLib.lua")
 assert(SF, "Starfall didn't load correctly!")
 
@@ -15,12 +17,14 @@ hook.Add("PlayerInitialSpawn","sf_screen_download",function(ply)
 		tbl[#tbl+1] = {
 			ent = s,
 			owner = s.owner,
-			files = s.task.files,
-			main = s.task.mainfile,
+			files = s.task.files or {},
+			main = s.task.mainfile or "",
 		}
 	end
 	if #tbl > 0 then
-		datastream.StreamToClients(ply,"sf_screen_download",tbl)
+		net.Start( "sf_screen_download" )
+			net.WriteTable( tbl )
+		net.Send( ply )
 	end
 end)
 
@@ -64,8 +68,8 @@ function ENT:Compile(codetbl, mainfile)
 	end
 	
 	self:UpdateName("")
-	local r,g,b,a = self:GetColor()
-	self:SetColor(255, 255, 255, a)
+	local a = self:GetColor().a
+	self:SetColor( Color( 255, 255, 255, a ) )
 end
 
 function ENT:Error(msg, override)
@@ -78,20 +82,21 @@ function ENT:Error(msg, override)
 	end
 	
 	self:UpdateName("Inactive (Error)")
-	local r,g,b,a = self:GetColor()
-	self:SetColor(255, 0, 0, a)
+	local a = self:GetColor().a
+	self:SetColor( Color( 255, 0, 0, a ) )
 end
 
 function ENT:CodeSent(ply, task)
 	if ply ~= self.owner then return end
 	self.task = task
-	datastream.StreamToClients(player.GetHumans(), "sf_screen_download",
-		{{
+	net.Start( "sf_screen_download" )
+		net.WriteTable( {{
 			ent = self,
 			owner = ply,
 			files = task.files,
 			main = task.mainfile,
-		}})
+		}} )
+	net.Broadcast()
 	screens[self] = self
 
 	local ppdata = {}

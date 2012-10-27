@@ -10,11 +10,11 @@ ENT.WireDebugName = "Starfall Processor"
 ENT.OverlayDelay = 0
 
 local context = SF.CreateContext()
-local name = nil
+--local name = nil
 
 function ENT:UpdateState(state)
-	if name then
-		self:SetOverlayText("Starfall Processor\n"..name.."\n"..state)
+	if self.name then
+		self:SetOverlayText("Starfall Processor\n"..self.name.."\n"..state)
 	else
 		self:SetOverlayText("Starfall Processor\n"..state)
 	end
@@ -27,10 +27,12 @@ function ENT:Initialize()
 	
 	self.Inputs = WireLib.CreateInputs(self, {})
 	self.Outputs = WireLib.CreateOutputs(self, {})
+
+	self.name = nil
 	
 	self:UpdateState("Inactive (No code)")
-	local r,g,b,a = self:GetColor()
-	self:SetColor(255, 0, 0, a)
+	local a = self:GetColor().a
+	self:SetColor( Color( 255, 0, 0, a ) )
 end
 
 function ENT:Compile(codetbl, mainfile)
@@ -41,23 +43,23 @@ function ENT:Compile(codetbl, mainfile)
 	self.instance = instance
 	instance.data.entity = self
 	
-	local ok, msg = instance:initialize()
+	local ok, msg = self.instance:initialize()
 	if not ok then
 		self:Error(msg)
 		return
 	end
 
 	if self.instance.ppdata.scriptnames and self.instance.mainfile and self.instance.ppdata.scriptnames[self.instance.mainfile] then
-		name = tostring(self.instance.ppdata.scriptnames[self.instance.mainfile])
+		self.name = tostring(self.instance.ppdata.scriptnames[self.instance.mainfile])
 	end
 
-	if not name or string.len(name) <= 0 then
-		name = "generic"
+	if not self.name or string.len(self.name) <= 0 then
+		self.name = "generic"
 	end
 
 	self:UpdateState("(None)")
-	local r,g,b,a = self:GetColor()
-	self:SetColor(255, 255, 255, a)
+	local a = self:GetColor().a
+	self:SetColor( Color( 255, 255, 255, a) )
 end
 
 function ENT:Error(msg, traceback)
@@ -73,8 +75,8 @@ function ENT:Error(msg, traceback)
 	end
 	
 	self:UpdateState("Inactive (Error)")
-	local r,g,b,a = self:GetColor()
-	self:SetColor(255, 0, 0, a)
+	local a = self:GetColor().a
+	self:SetColor( Color( 255, 0, 0, a ) )
 end
 
 function ENT:CodeSent(ply, task)

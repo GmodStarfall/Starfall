@@ -13,7 +13,7 @@ local ents_lib, _ = SF.Libraries.Register("ents")
 
 -- This is slightly more efficient
 function ValidEntity(ent)
-	return ent and ent:IsValid()
+	return ent and ent.IsValid and ent:IsValid()
 end
 
 -- ------------------------- Internal functions ------------------------- --

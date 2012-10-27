@@ -6,18 +6,19 @@ include("starfall/SFLib.lua")
 assert(SF, "Starfall didn't load correctly!")
 
 local context = SF.CreateContext(nil, nil, nil, nil, SF.Libraries.CreateLocalTbl{"render"})
-datastream.Hook("sf_screen_download",function(handler, id, encoded, decoded)
-	for i=1,#decoded do
-		data = decoded[i]
+net.Receive( "sf_screen_download", function(len, ply)
+	local Table = net.ReadTable()
+	for i = 1, #Table do
+		local data = Table[ i ]
 		local ent = data.ent
 		if not ent or ent:GetClass() ~= "gmod_wire_starfall_screen" then
-			ErrorNoHalt("SF Screen data sent to wrong entity: "..tostring(ent))
+			ErrorNoHalt( "SF Screen data sent to wrong entity: "..tostring( ent ) )
 			return
 		end
-		
-		ent:CodeSent(data.files, data.main, data.owner)
+
+		ent:CodeSent( data.files, data.main, data.owner )
 	end
-end)
+end )
 
 usermessage.Hook( "starfall_screen_used", function ( data )
 	local screen = Entity( data:ReadShort() )

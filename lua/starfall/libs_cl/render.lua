@@ -34,6 +34,7 @@ render_library.TEXT_ALIGN_BOTTOM = TEXT_ALIGN_BOTTOM
 -- @field u U coordinate (optional, default is 0)
 -- @field v V coordinate (optional, default is 0)
 
+local _R = debug.getregistry()
 local render = render
 local surface = surface
 local clamp = math.Clamp
