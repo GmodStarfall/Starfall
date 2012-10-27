@@ -4,7 +4,7 @@
 -------------------------------------------------------------------------------
 
 local dgetmeta = debug.getmetatable
-
+local _R = debug.getregistry()
 --- Built in values. These don't need to be loaded; they are in the default environment.
 -- @name builtin
 -- @shared

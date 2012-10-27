@@ -10,14 +10,16 @@ end
 
 function ENT:SetScale(scale)
 	umsg.Start("starfall_hologram_scale")
-		umsg.Entity(self)
-		umsg.Vector(scale)
+		umsg.Short(self.Entity:EntIndex())
+		umsg.Float(scale.x)
+		umsg.Float(scale.y)
+		umsg.Float(scale.z)
 	umsg.End()
 end
 
 function ENT:UpdateClip(index, enabled, origin, normal, islocal)
 	umsg.Start("starfall_hologram_clip")
-		umsg.Entity(self)
+		umsg.Short(self.Entity:EntIndex())
 		umsg.Short(index)
 		umsg.Bool(enabled)
 		umsg.Vector(origin)

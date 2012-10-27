@@ -358,12 +358,12 @@ end
 
 -- Library loading
 if SERVER then
-	local l
+	local files, folders
 	MsgN("-SF - Loading Libraries")
 
 	MsgN("- Loading shared libraries")
-	l = file.FindInLua("starfall/libs_sh/*.lua")
-	for _,filename in pairs(l) do
+	files, folders = file.Find("starfall/libs_sh/*.lua", "LUA")
+	for _,filename in pairs(files) do
 		print("-  Loading "..filename)
 		include("starfall/libs_sh/"..filename)
 		AddCSLuaFile("starfall/libs_sh/"..filename)
@@ -371,8 +371,8 @@ if SERVER then
 	MsgN("- End loading shared libraries")
 	
 	MsgN("- Loading SF server-side libraries")
-	l = file.FindInLua("starfall/libs_sv/*.lua")
-	for _,filename in pairs(l) do
+	files, folders = file.Find("starfall/libs_sv/*.lua", "LUA")
+	for _,filename in pairs(files) do
 		print("-  Loading "..filename)
 		include("starfall/libs_sv/"..filename)
 	end
@@ -380,8 +380,8 @@ if SERVER then
 
 	
 	MsgN("- Adding client-side libraries to send list")
-	l = file.FindInLua("starfall/libs_cl/*.lua")
-	for _,filename in pairs(l) do
+	files, folders = file.Find("starfall/libs_cl/*.lua","LUA")
+	for _,filename in pairs(files) do
 		print("-  Adding "..filename)
 		AddCSLuaFile("starfall/libs_cl/"..filename)
 	end
@@ -389,20 +389,20 @@ if SERVER then
 	
 	MsgN("-End Loading SF Libraries")
 else
-	local l
+	local files, folders
 	MsgN("-SF - Loading Libraries")
 
 	MsgN("- Loading shared libraries")
-	l = file.FindInLua("starfall/libs_sh/*.lua")
-	for _,filename in pairs(l) do
+	files, folders = file.Find("starfall/libs_sh/*.lua","LUA")
+	for _,filename in pairs(files) do
 		print("-  Loading "..filename)
 		include("starfall/libs_sh/"..filename)
 	end
 	MsgN("- End loading shared libraries")
 	
 	MsgN("- Loading client-side libraries")
-	l = file.FindInLua("starfall/libs_cl/*.lua")
-	for _,filename in pairs(l) do
+	files, folders = file.Find("starfall/libs_cl/*.lua","LUA")
+	for _,filename in pairs(files) do
 		print("-  Loading "..filename)
 		include("starfall/libs_cl/"..filename)
 	end

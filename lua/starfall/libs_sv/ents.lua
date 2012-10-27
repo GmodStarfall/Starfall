@@ -100,7 +100,7 @@ SF.Libraries.AddHook("postload",postload)
 function ents_methods:owner()
 	SF.CheckType(self,ents_metatable)
 	local ent = unwrap(self)
-	return wrap(getOwner(self))
+	return wrap(getOwner(ent))
 end
 
 --- Applies linear force to the entity
@@ -238,7 +238,7 @@ function ents_methods:setAng(ang)
 	local phys = getPhysObject(ent)
 	if not phys then return false, "entity has no physics object" end
 	
-	phys:SetAngle(ang)
+	phys:SetAngles(ang)
 	phys:Wake()
 	return true
 end

@@ -7,21 +7,13 @@ ENT.RenderGroup = RENDERGROUP_BOTH
 local msgQueueNames = {}
 local msgQueueData = {}
 
-local function msgQueueAdd(umname, ent, udata)
-	local names, data = msgQueueNames[ent], msgQueueData[ent]
-	if not names then
-		names, data = {}, {}
-		msgQueueNames[ent] = names
-		msgQueueData[ent] = data
-	end
-	
-	local i = #names+1
-	names[i] = umname
-	data[i] = udata
-end
+local function msgQueueProcess(entid)
+	local names, data = msgQueueNames[entid], msgQueueData[entid]
+	local ent = Entity( entid )
 
-local function msgQueueProcess(ent)
-	local names, data = msgQueueNames[ent], msgQueueData[ent]
+	if not IsValid( ent ) or not ent.SetScale or not ent.UpdateClip then
+		return
+	end
 	if names then
 		for i=1,#names do
 			local name = names[i]
@@ -32,9 +24,22 @@ local function msgQueueProcess(ent)
 			end
 		end
 		
-		msgQueueNames[ent] = nil
-		msgQueueData[ent] = nil
+		msgQueueNames[entid] = nil
+		msgQueueData[entid] = nil
 	end
+end
+
+local function msgQueueAdd(umname, entid, udata)
+	local names, data = msgQueueNames[entid], msgQueueData[entid]
+	if not names then
+		names, data = {}, {}
+		msgQueueNames[entid] = names
+		msgQueueData[entid] = data
+	end
+	
+	local i = #names+1
+	names[i] = umname
+	data[i] = udata
 end
 
 -- ------------------------ MAIN FUNCTIONS ------------------------ --
@@ -43,7 +48,7 @@ function ENT:Initialize()
 	self.clips = {}
 	self.unlit = false
 	self.scale = Vector(1,1,1)
-	msgQueueProcess(self)
+	msgQueueProcess(self.Entity:EntIndex())
 end
 
 function ENT:Draw()
@@ -91,11 +96,12 @@ function ENT:UpdateClip(index, enabled, origin, normal, islocal)
 end
 
 usermessage.Hook("starfall_hologram_clip", function(um, ent)
-	local holoent = ent or um:ReadEntity()
-	if not holoent:GetTable() then
+	local EntID = um:ReadShort()
+	local holoent = ent or Entity( EntID )
+	if not holoent:IsValid() then
 		-- Uninitialized
-		msgQueueAdd("clip", holoent, {um:ReadShort(), um:ReadBool(),
-			um:ReadVector(), um:ReadVector(), um:ReadBool()})
+		msgQueueAdd("clip", EntID, {um:ReadShort(), um:ReadBool(),
+			um:ReadVector(), um:ReadVector(), um:ReadBool()}, 2)
 	else
 		holoent:UpdateClip(um:ReadShort(), um:ReadBool(), um:ReadVector(),
 			um:ReadVector(), um:ReadBool())
@@ -108,7 +114,10 @@ end)
 -- @param scale Vector scale
 function ENT:SetScale(scale)
 	self.scale = scale
-	self:SetModelScale(scale)
+	
+	local Mat = Matrix()
+	Mat:Scale( scale )
+	self:EnableMatrix( "RenderMultiply", Mat )
 
 	local propmax = self:OBBMaxs()
 	local propmin = self:OBBMins()
@@ -124,11 +133,16 @@ function ENT:SetScale(scale)
 end
 
 usermessage.Hook("starfall_hologram_scale", function(um, ent)
-	local holoent = ent or um:ReadEntity()
-	if not holoent:GetTable() then
+	local EntID = um:ReadShort()
+	local holoent = ent or Entity( EntID )
+	if not holoent:IsValid() then
 		-- Uninitialized
-		msgQueueAdd("scale", holoent, um:ReadVector())
+		msgQueueAdd("scale", EntID, Vector( um:ReadFloat(), um:ReadFloat(), um:ReadFloat() ) )
 	else
-		holoent:SetScale(um:ReadVector())
+		if holoent.SetScale then
+			holoent:SetScale( Vector( um:ReadFloat(), um:ReadFloat(), um:ReadFloat() ) )
+		else
+			msgQueueAdd( "scale", EntID, Vector( um:ReadFloat(), um:ReadFloat(), um:ReadFloat() ) )
+		end
 	end
 end)
