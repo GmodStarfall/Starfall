@@ -285,6 +285,11 @@ if CLIENT then
 	function SF.Editor.init()
 		if SF.Editor.editor then return end
 		
+		-- Work around for e2 editor no longer creating the data directory.
+		if not file.Exists( "Starfall", "DATA" ) then
+			file.CreateDir( "Starfall", "DATA" )
+		end
+		
 		SF.Editor.editor = vgui.Create("Expression2EditorFrame")
 		SF.Editor.editor:Setup("SF Editor", "Starfall", "nothing") -- Setting the editor type to not nil keeps the validator line
 		
