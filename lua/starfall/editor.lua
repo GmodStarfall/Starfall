@@ -286,12 +286,12 @@ if CLIENT then
 		if SF.Editor.editor then return end
 		
 		-- Work around for e2 editor no longer creating the data directory.
-		if not file.Exists( "Starfall", "DATA" ) then
-			file.CreateDir( "Starfall", "DATA" )
+		if not file.Exists( "starfall", "DATA" ) then
+			file.CreateDir( "starfall", "DATA" )
 		end
 		
 		SF.Editor.editor = vgui.Create("Expression2EditorFrame")
-		SF.Editor.editor:Setup("SF Editor", "Starfall", "nothing") -- Setting the editor type to not nil keeps the validator line
+		SF.Editor.editor:Setup("SF Editor", "starfall", "nothing") -- Setting the editor type to not nil keeps the validator line
 		
 		-- Add "Sound Browser" button
 		do
@@ -389,7 +389,7 @@ if CLIENT then
 			if path == codename and maincode then
 				code = maincode
 			else
-				code = file.Read("Starfall/"..path, "DATA") or error("Bad include: "..path,0)
+				code = file.Read("starfall/"..path, "DATA") or error("Bad include: "..path,0)
 			end
 			
 			tbl.files[path] = code
