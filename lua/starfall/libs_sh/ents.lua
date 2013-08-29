@@ -85,6 +85,67 @@ function ents_methods:isValid()
 	return isValid(unwrap(self))
 end
 
+--- Checks if the entity is world
+-- @shared
+-- @return True if world, false if not
+function ents_methods:isWorld()
+	SF.CheckType(self,ents_metamethods)
+	local ent = unwrap(self)
+	return (ent and ent:IsValid() and ent:IsWorld())
+end
+
+--- Is some player holding the entity?
+-- @shared
+-- @return Return true if some player is holding this entity
+function ents_methods:isPlayerHolding()
+	SF.CheckType(self,ents_metamethods)
+	local ent = unwrap(self)
+	if not isValid(ent) then return nil, "invalid entity" end
+	return ent:IsPlayerHolding()
+end
+
+--- Is the entity on fire?
+-- @shared
+-- @return Return true if this entity is on fire
+function ents_methods:isOnFire()
+	SF.CheckType(self,ents_metamethods)
+	local ent = unwrap(self)
+	if not isValid(ent) then return nil, "invalid entity" end
+	return ent:IsOnFire()
+end
+
+--- Is the entity on ground?
+-- @shared
+-- @return Return true if this entity is on ground
+function ents_methods:isOnGround()
+	SF.CheckType(self,ents_metamethods)
+	local ent = unwrap(self)
+	if not isValid(ent) then return nil, "invalid entity" end
+	return ent:IsOnGround()
+end
+
+--- Is the entity under water?
+-- @shared
+-- @return Return true if this entity is under water
+function ents_methods:isUnderWater()
+	SF.CheckType(self,ents_metamethods)
+	local ent = unwrap(self)
+	if not isValid(ent) then return nil, "invalid entity" end
+	return (ent:WaterLevel() > 0)
+end
+
+--- Is the entity frozen?
+-- @shared
+-- @return Returns true if entity is frozen
+function ents_methods:isFrozen()
+	SF.CheckType( self, player_metamethods )
+	local phys = getPhysObject(unwrap(self))
+	if not phys then return false, "entity has no physics object or is not valid" end
+	return phys:IsMoveable()
+end
+
+-- ---------------- Basic info methods  -------- --
+
 --- Returns the EntIndex of the entity
 -- @shared
 -- @return The numerical index of the entity
@@ -105,6 +166,28 @@ function ents_methods:class()
 	return ent:GetClass()
 end
 
+--- Gets the model of an entity
+-- @shared
+-- @return The entity model name
+function ents_methods:model()
+	SF.CheckType(self,ents_metamethods)
+	local ent = unwrap(self)
+	if not isValid(ent) then return nil, "invalid entity" end
+	return ent:GetModel()
+end
+
+--- Gets the entity health
+-- @shared
+-- @return The entity health
+function ents_methods:health()
+	SF.CheckType(self,ents_metamethods)
+	local ent = unwrap(self)
+	if not isValid(ent) then return nil, "invalid entity" end
+	return ent:Health()
+end
+
+-- ---------------- Positional methods  -------- --
+
 --- Returns the position of the entity
 -- @shared
 -- @return The position vector
@@ -113,6 +196,87 @@ function ents_methods:pos()
 	local ent = unwrap(self)
 	if not isValid(ent) then return nil, "invalid entity" end
 	return ent:GetPos()
+end
+
+--- Returns the forward direction of the entity
+-- @shared
+-- @return Returns the forward vector of the entity, as a normalized direction vector
+function ents_methods:forward()
+	SF.CheckType(self,ents_metamethods)
+	local ent = unwrap(self)
+	if not isValid(ent) then return nil, "invalid entity" end
+	return ent:GetForward()
+end
+
+--- Returns the rightward direction of the entity
+-- @shared
+-- @return Returns the rightward vector of the entity, as a normalized direction vector
+function ents_methods:right()
+	SF.CheckType(self,ents_metamethods)
+	local ent = unwrap(self)
+	if not isValid(ent) then return nil, "invalid entity" end
+	return ent:GetRight()
+end
+
+--- Returns the upward direction of the entity
+-- @shared
+-- @return Returns the upward vector of the entity, as a normalized direction vector
+function ents_methods:up()
+	SF.CheckType(self,ents_metamethods)
+	local ent = unwrap(self)
+	if not isValid(ent) then return nil, "invalid entity" end
+	return ent:GetUp()
+end
+
+--- Returns the velocity of the entity
+-- @shared
+-- @return The velocity vector
+function ents_methods:vel()
+	SF.CheckType(self,ents_metamethods)
+	local ent = unwrap(self)
+	if not isValid(ent) then return nil, "invalid entity" end
+	return ent:GetVelocity()
+end
+
+--- Returns the angle of the entity
+-- @shared
+-- @return The angle
+function ents_methods:ang()
+	SF.CheckType(self,ents_metamethods)
+	local ent = unwrap(self)
+	if not isValid(ent) then return nil, "invalid entity" end
+	return ent:GetAngles()
+end
+
+--- Returns the angular velocity of the entity
+-- @shared
+-- @return The angular velocity angle
+function ents_methods:angVel()
+	SF.CheckType(self,ents_metamethods)
+	local phys = getPhysObject(unwrap(self))
+	if not phys then return false, "entity has no physics object or is not valid" end
+	local vel = phys:GetAngleVelocity()
+	return Angle(vel.y, vel.z, vel.x)
+end
+
+--- Returns the angular velocity of the entity as vector
+-- @shared
+-- @return The angular velocity vector
+function ents_methods:angVelVector()
+	SF.CheckType(self,ents_metamethods)
+	local phys = getPhysObject(unwrap(self))
+	if not phys then return false, "entity has no physics object or is not valid" end
+	return phys:GetAngleVelocity()
+end
+
+-- Returns the mins and maxs of the entity's bounding box
+-- @shared
+-- @return The mins and maxs of the entity's bounding box
+function ents_methods:obb()
+	SF.CheckType(self,ents_metamethods)
+	local ent = unwrap(self)
+	if not isValid(ent) then return nil, "invalid entity" end
+	return ent:OBBMins(),ent:OBBMaxs()
 end
 
 --- Returns the x, y, z size of the entity's outer bounding box (local to the entity)
@@ -127,32 +291,57 @@ end
 
 --- Returns the world position of the entity's outer bounding box
 -- @shared
+-- @param loc - If true then return as local position
 -- @return The position vector of the outer bounding box center
-function ents_methods:obbCenter()
+function ents_methods:obbCenter(loc)
 	SF.CheckType(self,ents_metamethods)
 	local ent = unwrap(self)
 	if not isValid(ent) then return nil, "invalid entity" end
+	if loc then return ent:OBBCenter() end
 	return ent:LocalToWorld(ent:OBBCenter())
+end
+
+--- Returns the radius of the entity's bounding box
+-- @shared
+-- @return The radius number
+function ents_methods:radius()
+	SF.CheckType(self,ents_metamethods)
+	local ent = unwrap(self)
+	if not isValid(ent) then return nil, "invalid entity" end
+	return ent:BoundingRadius()
+end
+
+-- Returns the mins and max of the physics object
+-- @shared
+-- @return The mins and max of the physics object
+function ents_methods:aabb()
+	SF.CheckType(self,ents_metamethods)
+	local phys = getPhysObject(unwrap(self)) 	
+	if not phys then return false, "entity has no physics object or is not valid" end
+	return phys:GetAABB()
+end
+
+-- Returns the x, y, z size of the physics object
+-- @shared
+-- @return The the x, y, z size of the physics object
+function ents_methods:aabbSize()
+	SF.CheckType(self,ents_metamethods)
+	local phys = getPhysObject(unwrap(self))
+	if not phys then return false, "entity has no physics object or is not valid" end
+	local min,max = phys:GetAABB()
+	return max - min
 end
 
 --- Returns the world position of the entity's mass center
 -- @shared
+-- @param loc - If true then return as local position
 -- @return The position vector of the mass center
-function ents_methods:massCenter()
+function ents_methods:massCenter(loc)
 	SF.CheckType(self,ents_metamethods)
 	local ent = unwrap(self)
 	if not isValid(ent) then return nil, "invalid entity" end
+	if loc then return ent:GetMassCenter() end
 	return ent:LocalToWorld(ent:GetMassCenter())
-end
-
---- Returns the angle of the entity
--- @shared
--- @return The angle
-function ents_methods:ang()
-	SF.CheckType(self,ents_metamethods)
-	local ent = unwrap(self)
-	if not isValid(ent) then return nil, "invalid entity" end
-	return ent:GetAngles()
 end
 
 --- Returns the mass of the entity
@@ -160,12 +349,19 @@ end
 -- @return The numerical mass
 function ents_methods:mass()
 	SF.CheckType(self,ents_metamethods)
-	
-	local ent = unwrap(self)
-	local phys = getPhysObject(ent)
+	local phys = getPhysObject(unwrap(self))
 	if not phys then return false, "entity has no physics object or is not valid" end
-	
 	return phys:GetMass()
+end
+
+--- Gets the volume of the entity
+-- @shared
+-- @return Returns the volume of the entity
+function ents_methods:volume()
+	SF.CheckType(self,ents_metamethods)
+	local phys = getPhysObject(unwrap(self))
+	if not phys then return false, "entity has no physics object or is not valid" end
+	return phys:GetVolume()
 end
 
 --- Returns the principle moments of inertia of the entity
@@ -173,37 +369,15 @@ end
 -- @return The principle moments of inertia as a vector
 function ents_methods:inertia()
 	SF.CheckType(self,ents_metamethods)
-	
-	local ent = unwrap(self)
-	local phys = getPhysObject(ent)
+	local phys = getPhysObject(unwrap(self))
 	if not phys then return false, "entity has no physics object or is not valid" end
-	
 	return phys:GetInertia()
 end
 
---- Returns the velocity of the entity
--- @shared
--- @return The velocity vector
-function ents_methods:vel()
-	SF.CheckType(self,ents_metamethods)
-	local ent = unwrap(self)
-	if not isValid(ent) then return nil, "invalid entity" end
-	return ent:GetVelocity()
-end
-
---- Returns the angular velocity of the entity
--- @shared
--- @return The angular velocity vector
-function ents_methods:angVelVector()
-	SF.CheckType(self,ents_metamethods)
-	local phys = getPhysObject(unwrap(self)) 	
-	if not phys then return false, "entity has no physics object or is not valid" end	
-	return phys:GetAngleVelocity()
-end
-
---- Converts a vector in entity local space to world space
+--- Converts a vector/angle in entity local space to world space
 -- @shared
 -- @param data Local space vector
+-- @return Returns the transformed vector/angle
 function ents_methods:toWorld(data)
 	SF.CheckType(self,ents_metamethods)
 	local ent = unwrap(self)
@@ -218,9 +392,10 @@ function ents_methods:toWorld(data)
 	end
 end
 
---- Converts a vector in world space to entity local space
+--- Converts a vector/angle in world space to entity local space
 -- @shared
 -- @param data Local space vector
+-- @return Returns the transformed vector/angle
 function ents_methods:toLocal(data)
 	SF.CheckType(self,ents_metamethods)
 	local ent = unwrap(self)
@@ -235,17 +410,46 @@ function ents_methods:toLocal(data)
 	end
 end
 
---- Gets the model of an entity
+--- Transforms an axis local to entity to a global axis
 -- @shared
-function ents_methods:model()
+-- @param localAxis Local space vector
+-- @return Returns the transformed vector
+function ents_methods:toWorldAxis(localAxis)
 	SF.CheckType(self,ents_metamethods)
+	SF.CheckType(localAxis,"Vector")
 	local ent = unwrap(self)
 	if not isValid(ent) then return nil, "invalid entity" end
-	return ent:GetModel()
+
+	return ent:LocalToWorld(localAxis)-ent:GetPos()
 end
 
---- Gets the entitiy's eye angles
+--- Transforms a world axis to an axis local to entity
 -- @shared
+-- @param worldAxis Local space vector
+-- @return Returns the transformed vector
+function ents_methods:toWorldAxis(worldAxis)
+	SF.CheckType(self,ents_metamethods)
+	SF.CheckType(worldAxis,"Vector")
+	local ent = unwrap(self)
+	if not isValid(ent) then return nil, "invalid entity" end
+
+	return ent:WorldToLocal(worldAxis)+ent:GetPos()
+end
+
+--- Performs a Ray OBBox intersection with the entity
+-- @param point The position vector
+-- @return Returns the closest point on the edge of the entity's bounding box to the given vector
+function ents_methods:nearestPoint(point)
+	SF.CheckType(self,ents_metamethods)
+	SF.CheckType(point,"Vector")
+	local ent = unwrap(self)
+	if not isValid(ent) then return nil, "invalid entity" end
+	return ent:NearestPoint(point)
+end
+
+--- Gets the entity's eye angles
+-- @shared
+-- @return Returns the direction a player/npc/ragdoll is looking as a world-oriented angle
 function ents_methods:eyeAngles()
 	SF.CheckType(self,ents_metamethods)
 	local ent = unwrap(self)
@@ -255,9 +459,78 @@ end
 
 --- Gets the entity's eye position
 -- @shared
+-- @return Returns the position of an Player/NPC's view, or two vectors for ragdolls (one for each eye)
 function ents_methods:eyePos()
 	SF.CheckType(self,ents_metamethods)
 	local ent = unwrap(self)
 	if not isValid(ent) then return nil, "invalid entity" end
 	return ent:EyePos()
+end
+
+-- ---------------- Look methods  -------- --
+
+--- Get material of entity
+-- @shared
+-- @return Returns material name
+function ents_methods:material()
+	SF.CheckType(self,ents_metamethods)
+	local ent = unwrap(self)
+	if not isValid(ent) then return nil, "invalid entity" end
+	return ent:GetMaterial() or ""
+end
+
+--- Get current skin of entity
+-- @shared
+-- @return Returns skin number
+function ents_methods:skin()
+	SF.CheckType(self,ents_metamethods)
+	local ent = unwrap(self)
+	if not isValid(ent) then return nil, "invalid entity" end
+	return ent:GetSkin() or 0
+end
+
+--- Get number of skins of entity
+-- @shared
+-- @return Returns number of skins
+function ents_methods:skinCount()
+	SF.CheckType(self,ents_metamethods)
+	local ent = unwrap(self)
+	if not isValid(ent) then return nil, "invalid entity" end
+	return ent:SkinCount() or 0
+end
+
+-- ---------------- Attachments methods  -------- --
+
+--- Get attachment position
+-- @shared
+-- @param attachment Attachment ID or name
+-- @return Position of attachment
+function ents_methods:attachmentPos(attachment)
+	SF.CheckType(self,ents_metamethods)
+	local ent = unwrap(self)
+	if not isValid(ent) then return nil, "invalid entity" end
+	if type(attachment) == "string" then
+		attachment = ent:LookupAttachment(attachment)
+	elseif not type(attachment) == "number" then
+		SF.CheckType(attachment,"string or number") -- force error
+	end
+	local attach = ent:GetAttachment(attachment)
+	return attach.Pos
+end
+
+--- Get attachment angle
+-- @shared
+-- @param attachment Attachment ID or name
+-- @return Angle of attachment
+function ents_methods:attachmentAng(attachment)
+	SF.CheckType(self,ents_metamethods)
+	local ent = unwrap(self)
+	if not isValid(ent) then return nil, "invalid entity" end
+	if type(attachment) == "string" then
+		attachment = ent:LookupAttachment(attachment)
+	elseif not type(attachment) == "number" then
+		SF.CheckType(attachment,"string or number") -- force error
+	end
+	local attach = ent:GetAttachment(attachment)
+	return attach.Ang
 end

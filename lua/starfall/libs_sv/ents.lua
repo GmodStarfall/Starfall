@@ -303,3 +303,61 @@ function ents_methods:enableGravity(grav)
 	phys:Wake()
 	return true
 end
+
+--- Sets entity mass
+-- @param mass Entity new mass (0.001 - 50000)
+function ents_methods:setMass(mass)
+	SF.CheckType(self,ents_metatable)
+	SF.CheckType(mass,"number")
+
+	local ent = unwrap(self)
+	if not isValid(ent) then return false, "entity not valid" end
+	if not canModify(SF.instance.player, ent) or SF.instance.permissions:checkPermission("Modify All Entities") then return false, "access denied" end
+	local phys = getPhysObject(ent)
+	if not phys then return false, "entity has no physics object" end
+	if ent:IsPlayer() then return false, "cannot set mass of player" end
+
+	local mass = math.Clamp(mass, 0.001, 50000)
+
+	phys:SetMass(mass)
+
+	if not phys:GetMass() == mass then return false, "setting mass failed" end
+
+	return true
+end
+
+--- Sets the entity material
+-- @param material Material
+-- @return Returns true on success
+function ents_methods:setMaterial(material)
+	SF.CheckType(self,ents_metatable)
+	SF.CheckType(material, "string")
+
+	local ent = unwrap(self)
+	if not isValid(ent) then return false, "invalid entity" end
+	if not canModify(SF.instance.player, ent) or SF.instance.permissions:checkPermission("Modify All Entities") then return false, "access denied" end
+
+	ent:SetMaterial(material)
+
+	if not ent:GetMaterial() == material then return false, "failed to set material" end
+
+	return true
+end
+
+--- Sets the entity skin
+-- @param skin Skin number
+-- @return Returns true on success
+function ents_methods:setSkin(skin)
+	SF.CheckType(self,ents_metatable)
+	SF.CheckType(skin, "number")
+
+	local ent = unwrap(self)
+	if not isValid(ent) then return false, "invalid entity" end
+	if not canModify(SF.instance.player, ent) or SF.instance.permissions:checkPermission("Modify All Entities") then return false, "access denied" end
+
+	ent:SetSkin(skin)
+
+	if not ent:GetSkin() == skin then return false, "failed to set skin" end
+
+	return true
+end
