@@ -1,0 +1,8 @@
+name: Starfall
+url: https://github.com/GmodStarfall/Starfall
+description: Sandbox engine for Garry's Mod
+
+permalink: /:title/
+pygments: true
+
+exclude: ['README.md', 'Gemfile.lock', 'Gemfile', 'Rakefile', 'Vagrantfile']

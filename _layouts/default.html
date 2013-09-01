@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+  <meta charset="UTF-8">
+  <title>{{ page.title }}</title>
+  <meta name="viewport" content="width=device-width">
+
+  <!--[if lt IE 9]>
+    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+
+  <link href="/assets/css/style.css" rel="stylesheet" />
+  <link href="/assets/css/colors.css" rel="stylesheet" />
+
+</head>
+
+<body>
+
+  <a href="https://github.com/GmodStarfall/Starfall"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png" alt="Fork me on GitHub"></a>
+
+  <header id="header">
+    <h1><a href="/">{{ site.name }}</a></h1>
+    <p>{{ site.description }}</p>
+  </header>
+
+
+
+  <div id="page">
+    <div id="sidebar">
+      <nav>
+        <ul>
+          <li><a href="/">Home</a></li>
+          <!--<li><a href="/archives">Archive</a></li>
+          <li><a href="/about">About</a></li>-->
+        </ul>
+      </nav>
+    </div>
+    <div id="content">
+      {{ content }}
+    </div>
+  </div>
+  <footer id="footer">
+    <p class="copyright">Powered by <a href="http://jekyllrb.com">Jekyll</a></p>
+  </footer>
+</body>
+</html>
