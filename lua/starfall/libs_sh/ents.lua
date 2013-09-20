@@ -52,7 +52,7 @@ end
 
 --- Returns whoever created the script
 function ents_lib.owner()
-	return SF.Entities.Wrap(SF.instance.player)
+	return SF.WrapObject(SF.instance.player)
 end
 
 --- Same as ents_lib.owner() on the server. On the client, returns the local player
@@ -63,7 +63,7 @@ if SERVER then
 	ents_lib.player = ents_lib.owner
 else
 	function ents_lib.player()
-		return SF.Entities.Wrap(LocalPlayer())
+		return SF.WrapObject(LocalPlayer())
 	end
 end
 
