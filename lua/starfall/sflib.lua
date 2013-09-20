@@ -352,6 +352,37 @@ end
 
 -- ------------------------------------------------------------------------- --
 
+local function isnan(n)
+	return n ~= n
+end
+
+-- Taken from E2Lib
+
+-- This function clamps the position before moving the entity
+local minx, miny, minz = -16384, -16384, -16384
+local maxx, maxy, maxz = 16384, 16384, 16384
+local clamp = math.Clamp
+function SF.clampPos(pos)
+	pos.x = clamp(pos.x, minx, maxx)
+	pos.y = clamp(pos.y, miny, maxy)
+	pos.z = clamp(pos.z, minz, maxz)
+	return pos
+end
+
+function SF.setPos(ent, pos)
+	if isnan(pos.x) or isnan(pos.y) or isnan(pos.z) then return end
+	return ent:SetPos(E2Lib.clampPos(pos))
+end
+
+local huge, abs = math.huge, math.abs
+function SF.setAng(ent, ang)
+	if isnan(ang.pitch) or isnan(ang.yaw) or isnan(ang.roll) then return end
+	if abs(ang.pitch) == huge or abs(ang.yaw) == huge or abs(ang.roll) == huge then return false end -- SetAngles'ing inf crashes the server
+	return ent:SetAngles(ang)
+end
+
+-- ------------------------------------------------------------------------- --
+
 local serialize_replace_regex = "[\"\n]"
 local serialize_replace_tbl = {["\n"] = "£", ['"'] = "€"}
 --- Serializes an instance's code in a format compatible with the duplicator library
