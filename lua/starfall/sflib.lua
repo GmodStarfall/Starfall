@@ -64,8 +64,6 @@ SF.defaultquota = CreateConVar("sf_defaultquota", "100000", {FCVAR_ARCHIVE,FCVAR
 	"The default number of Lua instructions to allow Starfall scripts to execute")
 
 local dgetmeta = debug.getmetatable
-local object_wrappers = {}
-local object_unwrappers = {}
 
 --- Creates a type that is safe for SF scripts to use. Instances of the type
 -- cannot access the type's metatable or metamethods.
@@ -73,6 +71,7 @@ local object_unwrappers = {}
 -- @param supermeta The metatable to inheret from
 -- @return The table to store normal methods
 -- @return The table to store metamethods
+SF.Types = {}
 function SF.Typedef(name, supermeta)
 	local methods, metamethods = {}, {}
 	metamethods.__metatable = name
@@ -89,7 +88,13 @@ function SF.Typedef(name, supermeta)
 			end
 		end
 	end
+
+	SF.Types[name] = metamethods
 	return methods, metamethods
+end
+
+function SF.GetTypeDef( name )
+	return SF.Types[name]
 end
 
 -- Include this file after Typedef as this file relies on it.
@@ -110,7 +115,15 @@ SF.allInstances = setmetatable({},{__mode="kv"})
 --- Calls a script hook on all processors.
 function SF.RunScriptHook(hook,...)
 	for _,instance in pairs(SF.allInstances) do
-		if not instance.error then instance:runScriptHook(hook,...) end
+		if not instance.error then
+			local ok, err = instance:runScriptHook(hook,...)
+			if not ok then
+				instance.error = true
+				if instance.runOnError then
+					instance:runOnError( err )
+				end
+			end
+		end
 	end
 end
 
@@ -140,7 +153,7 @@ function SF.CheckType(val, typ, level, default)
 	elseif type(val) == typ then return val
 	else
 		local meta = dgetmeta(val)
-		if meta == typ or (meta.__supertypes and meta.__supertypes[typ] ) then return val end
+		if meta == typ or (meta and meta.__supertypes and meta.__supertypes[typ]) then return val end
 		
 		-- Failed, throw error
 		level = (level or 0) + 3
@@ -157,10 +170,18 @@ function SF.CheckType(val, typ, level, default)
 		local mt = getmetatable(val)
 		error("Type mismatch (Expected "..typname..", got "..(type(mt) == "string" and mt or type(val))..") in function "..funcname,level)
 	end
-	
+end
+
+--- Gets the type of val.
+-- @param val The value to be checked.
+function SF.GetType( val )
+	local mt = dgetmeta(val)
+	return (mt and mt.__metatable and type(mt.__metatable) == "string") and mt.__metatable or type(val)
 end
 
 -- ------------------------------------------------------------------------- --
+
+local object_wrappers = {}
 
 --- Creates wrap/unwrap functions for sensitive values, by using a lookup table
 -- (which is set to have weak keys and values)
@@ -203,12 +224,20 @@ function SF.CreateWrapper(metatable, weakwrapper, weaksensitive, target_metatabl
 	end
 	
 	if nil ~= target_metatable then
-		object_wrappers[target_metatable] = wrap
+		object_wrappers[metatable] = wrap
+		metatable.__wrap = wrap
 	end
 	
-	object_unwrappers[metatable] = unwrap
+	metatable.__unwrap = unwrap
 	
 	return wrap, unwrap
+end
+
+--- Adds an additional wrapper for an object
+-- @param object_meta metatable of object
+-- @param wrapper function that wraps object
+function SF.AddObjectWrapper( object_meta, wrapper )
+	object_wrappers[object_meta] = wrapper
 end
 
 --- Wraps the given object so that it is safe to pass into starfall
@@ -231,8 +260,9 @@ end
 function SF.UnwrapObject( object )
 	local metatable = dgetmeta(object)
 	
-	local unwrap = object_unwrappers[metatable]
-	return unwrap and unwrap(object)
+	if metatable and metatable.__unwrap then
+		return metatable.__unwrap( object )
+	end
 end
 
 local wrappedfunctions = setmetatable({},{__mode="kv"})
@@ -265,6 +295,7 @@ local safe_types = {
 	["number"  ] = true,
 	["string"  ] = true,
 	["Vector"  ] = true,
+	["Color"   ] = true,
 	["Angle"   ] = true,
 	["Angle"   ] = true,
 	["Matrix"  ] = true,
@@ -288,9 +319,7 @@ function SF.Sanitize( ... )
 		local typ = type( value )
 		if safe_types[ typ ] then
 			return_list[key] = value
-		elseif typ == "Entity" or typ == "Player" or typ == "NPC" then
-			return_list[key] = SF.Entities.Wrap(value)
-		elseif typ == "table" and object_unwrappers[dgetmeta(value)] then
+		elseif (typ == "table" or typ == "Entity" or typ == "Player" or typ == "NPC") and SF.WrapObject(value) then
 			return_list[key] = SF.WrapObject(value)
 		elseif typ == "table" then
 			local tbl = {}
@@ -315,8 +344,8 @@ function SF.Unsanitize( ... )
 	
 	for key, value in pairs( args ) do
 		local typ = type(value)
-		if (typ == "table" and object_unwrappers[dgetmeta(value)]) then
-			return_list[key] = SF.UnwrapObject(value) or value
+		if typ == "table" and SF.UnwrapObject(value) then
+			return_list[key] = SF.UnwrapObject(value)
 		elseif typ == "table" then
 			return_list[key] = {}
 
@@ -329,6 +358,37 @@ function SF.Unsanitize( ... )
 	end
 
 	return unpack( return_list )
+end
+
+-- ------------------------------------------------------------------------- --
+
+local function isnan(n)
+	return n ~= n
+end
+
+-- Taken from E2Lib
+
+-- This function clamps the position before moving the entity
+local minx, miny, minz = -16384, -16384, -16384
+local maxx, maxy, maxz = 16384, 16384, 16384
+local clamp = math.Clamp
+function SF.clampPos(pos)
+	pos.x = clamp(pos.x, minx, maxx)
+	pos.y = clamp(pos.y, miny, maxy)
+	pos.z = clamp(pos.z, minz, maxz)
+	return pos
+end
+
+function SF.setPos(ent, pos)
+	if isnan(pos.x) or isnan(pos.y) or isnan(pos.z) then return end
+	return ent:SetPos(E2Lib.clampPos(pos))
+end
+
+local huge, abs = math.huge, math.abs
+function SF.setAng(ent, ang)
+	if isnan(ang.pitch) or isnan(ang.yaw) or isnan(ang.roll) then return end
+	if abs(ang.pitch) == huge or abs(ang.yaw) == huge or abs(ang.roll) == huge then return false end -- SetAngles'ing inf crashes the server
+	return ent:SetAngles(ang)
 end
 
 -- ------------------------------------------------------------------------- --
@@ -401,7 +461,7 @@ if SERVER then
 	end
 
 	hook.Add("PlayerDisconnected", "SF_requestcode_cleanup", function(ply)
-		callbacks[ply] = nil
+		uploaddata[ply] = nil
 	end)
 	
 	net.Receive("starfall_upload", function(len, ply)
